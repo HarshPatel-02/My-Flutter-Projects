@@ -1,0 +1,271 @@
+import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:iconsax/iconsax.dart';
+import '../ProductModel.dart';
+import '../models/dataProvider.dart';
+import 'BedroomDetails.dart'; // Import the BedroomDetails page
+
+class Home extends StatefulWidget {
+  const Home({super.key});
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  List imageList = [
+    {"id": 1, "image_path": 'assets/images/sofa1.jpeg'},
+    {"id": 2, "image_path": 'assets/images/sofa2.jpeg'},
+    {"id": 3, "image_path": 'assets/images/sofa1.jpeg'},
+  ];
+  List<Category>? categoryList = [
+    Category(
+        category: "BedRoom",
+        img:
+            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
+    Category(
+        category: "Kitchen",
+        img:
+            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
+    Category(
+        category: "LivingRoom",
+        img:
+            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
+    Category(
+        category: "Bath",
+        img:
+            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
+  ];
+
+  final CarouselSliderController carouselController = CarouselSliderController();
+
+  int currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    const IconData bed = IconData(0xe0d7, fontFamily: 'MaterialIcons');
+    return Scaffold(
+      appBar: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Row(
+            children: [
+              Image.asset(
+                'assets/images/Splash_logo_only.png',
+                fit: BoxFit.fitHeight,
+                height: 40,
+                color: Colors.blue,
+              ),
+            ],
+          ),
+        ),
+        title: Text(
+          'decoze',
+          style: TextStyle(
+              fontWeight: FontWeight.bold, color: Colors.lime, fontSize: 25),
+        ),
+        actions: <Widget>[
+          IconButton(onPressed: () {}, icon: Icon(Iconsax.search_normal_1)),
+          IconButton(onPressed: () {}, icon: Icon(Iconsax.heart)),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InkWell(
+                onTap: () {
+                  print(currentIndex);
+                },
+                child: Container(
+                  color: Colors.grey.shade200,
+                  margin: EdgeInsets.symmetric(horizontal: 8),
+                  height: 200,
+                  width: double.infinity,
+                  child: CarouselSlider(
+                      items: imageList
+                          .map(
+                            (item) => Image.asset(
+                              item['image_path'],
+                              fit: BoxFit.contain,
+                              width: double.infinity,
+                            ),
+                          )
+                          .toList(),
+                      carouselController: carouselController,
+                      options: CarouselOptions(
+                        scrollPhysics: const BouncingScrollPhysics(),
+                        autoPlay: true,
+                        aspectRatio: 2,
+                        viewportFraction: 1,
+                        onPageChanged: (index, reason) {
+                          setState(() {
+                            currentIndex = index;
+                          });
+                        },
+                      )),
+                ),
+              ),
+              SizedBox(height: 5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: imageList.asMap().entries.map((entry) {
+                  return GestureDetector(
+                    onTap: () => carouselController.animateToPage(entry.key),
+                    child: Container(
+                      width: currentIndex == entry.key ? 27 : 10,
+                      height: 8,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 3.0,
+                      ),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: currentIndex == entry.key
+                              ? Colors.green
+                              : Colors.red),
+                    ),
+                  );
+                }).toList(),
+              ),
+              SizedBox(height: 8),
+              SizedBox(
+                height: 140,
+                child: ListView.builder(
+                  itemBuilder: (context, index) => Container(
+                    width: 130,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 8),
+                      margin: EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey, width: 1),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.network(
+                            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg",
+                            height: 85,
+                            width: 60,
+                          ),
+                          Text(
+                            categoryList![index].category.toString(),
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  itemCount: categoryList?.length,
+                  scrollDirection: Axis.horizontal,
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                'Top Selling',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              SizedBox(
+                height: 253,
+                child: ListView.builder(
+                  itemCount: globalProductList.length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) => GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BedroomDetails(id: globalProductList[index].id),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      width: 150,
+                      margin: EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey, width: 1),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Stack(
+                            children: <Widget>[
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Container(
+                                    height: 140,
+                                    width: 130,
+                                    child: Image.network(
+                                      '${globalProductList[index].img}',
+                                      fit: BoxFit.fill,
+                                    )),
+                              ),
+                              Positioned(
+                                top: 5,
+                                right: 5,
+                                child: IconButton.filledTonal(
+                                  onPressed: () {},
+                                  icon: const Icon(Icons.favorite_border),
+                                  tooltip: 'favorite',
+                                  iconSize: 18,
+                                ),
+                              )
+                            ],
+                          ),
+                          Text(
+                            '${globalProductList[index].category}',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                          Text(
+                            '${globalProductList[index].title}\n',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, color: Colors.green),
+                          ),
+                          Text(
+                            '\$${globalProductList[index].price}',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, color: Colors.black),
+                          ),
+                          Row(
+                            spacing: 5,
+                            children: [
+                              Icon(
+                                Icons.star,
+                                size: 18,
+                                color: Colors.amber,
+                              ),
+                              Text(
+                                '${globalProductList[index].rating}',
+                                style: TextStyle(
+                                    fontSize: 10, fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Other widgets...
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,1 @@
+C:\MyWork\task1\build\app\intermediates\cxx\RelWithDebInfo\5t25232q\obj\x86_64
