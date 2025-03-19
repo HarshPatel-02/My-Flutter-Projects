@@ -54,6 +54,11 @@ class ProductItem {
 
     );
   }
+  @override
+  String toString() {
+    return '(Title :$title,Price: $price,)';
+  }
+
 
 }
 

@@ -16,18 +16,24 @@ import 'package:task1/screens/Sign_up-Extra.dart';
 import 'package:task1/screens/Sign_up.dart';
 import 'package:task1/screens/Splash.dart';
 import 'package:task1/screens/api.dart';
-import 'package:task1/screens/profile.dart';
+import 'package:task1/screens/userprofile.dart';
+// import 'package:task1/screens/userprofile.dart';
 import 'package:task1/screens/Bottom_navigationBar.dart';
 import 'package:task1/screens/userapp.dart';
 
+import 'dataBase/DataBaseHelperClass.dart';
+import 'dataBase/UserScreen.dart';
 import 'models/ProductModel.dart';
 import 'screens/Bottom_navigationBar.dart';
 
 List<ProductItem> cartItems=[];
+List<ProductItem> favoriteProducts = [];
+
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp();
+  DataBaseHelper dbHelper = DataBaseHelper();
   await SharedPreferences.getInstance();
   runApp(const MyApp());
 }
@@ -88,11 +94,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // home: Categorys(),
       home: SplashScreen(),
+    //   home: UsersScreen(),
       // home: Userapp(),
-      // home: AddToCart(id: '',),
+      // home: AddToCart(),
+      // home: Profile(),
 
       // theme: lightMode,
       // darkTheme: darkMode,
     );
   }
 }
+

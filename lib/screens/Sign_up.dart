@@ -6,6 +6,7 @@ import 'package:task1/models/UserModel.dart';
 import 'package:task1/screens/Login.dart';
 import 'package:task1/screens/getData.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../dataBase/UserScreen.dart';
 import '../ui_widgets/custom_textfield.dart';
 import 'Bottom_navigationBar.dart';
 class SignUp extends StatefulWidget {
@@ -23,6 +24,7 @@ class _SignUpState extends State<SignUp> {
     super.initState();
     dbHelper = DataBaseHelper();
   }
+  bool _obscureText = true;
 
  final TextEditingController PasswordController =TextEditingController();
  final TextEditingController emailController =TextEditingController();
@@ -33,30 +35,37 @@ class _SignUpState extends State<SignUp> {
 
    if(uemail.isEmpty){
      Fluttertoast.showToast(msg: 'Please Enter Username');
+     return;
    }
-   else if(upassword.isEmpty){
+   if(upassword.isEmpty){
    Fluttertoast.showToast(msg:'Please Enter Email');
-
-return;
+      return;
    }
-   UserModel? existingUser = await dbHelper!.getUserByEmailAndPassword(uemail,);
+   UserModel? existingUser = await dbHelper!.getUserByEmail(uemail,);
    if (existingUser != null) {
      Fluttertoast.showToast(msg: 'User already exists. Please log in.');
+     print('User already exists: ${existingUser.email}');
      return;
    }
 
-   try{
-     await dbHelper!.insert(UserModel(email: uemail,password: upassword));
+     try {
+       int? userId = await dbHelper!.insert(UserModel(email: uemail, password: upassword));
 
-     SharedPreferences sp =await SharedPreferences.getInstance();
-     await sp.setString('userEmail', uemail);
+       if (userId != null) {
+         Fluttertoast.showToast(msg: 'Signup Successful!');
+         print('User added: $uemail');
 
-     Fluttertoast.showToast(msg: 'Signup Successful!');
+         SharedPreferences sp = await SharedPreferences.getInstance();
+         await sp.setString('userEmail', uemail);
 
-     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login(),));
-   }catch(error){
-     Fluttertoast.showToast(msg: 'Error ${error.toString()}');
-   }
+         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
+       } else {
+         Fluttertoast.showToast(msg: 'Email already in use. Please use a different email.');
+       }
+     } catch (error) {
+       Fluttertoast.showToast(msg: 'Error: ${error.toString()}');
+       print('Error during signup: $error');
+     }
  }
 
   @override
@@ -67,6 +76,7 @@ return;
           // title:Text('Signup'),centerTitle: true,
           // backgroundColor: Color(0xFFF9FF40),
         ),
+      resizeToAvoidBottomInset: false,
 
       body: Center(
 
@@ -83,8 +93,28 @@ return;
                 Column(
                   spacing: 30,
                   children: [
-                    CustomTextfield(hintText: 'Email', controller: emailController,icon:Icons.email),
-                    CustomTextfield(hintText: 'Password', controller: PasswordController,icon: Iconsax.user4,),
+                    CustomTextfield(hintText: 'Email', controller: emailController,icon:Icons.email,),
+                    CustomTextfield(
+                      hintText: 'Password',
+                      controller: PasswordController,
+                      icon: Iconsax.lock5,
+                      obscureText: _obscureText,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText ? Iconsax.eye_slash : Iconsax.eye,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ), onSuffixIconPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                    ),
+
 
                   ],
                 ),
@@ -94,17 +124,10 @@ return;
                   padding: EdgeInsets.only(top: 10),
                   child: ElevatedButton(onPressed: (){
 
-                    dbHelper!.insert(
-                      UserModel(email: 'hp@gmail.com',password: '123456789')
-                    ).then((onValue){
-                      print('Data added',);
 
-                    }).onError((error,stackTrace){
-                      print(error.toString());
-                    });
 
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>BottomNavigationbar()));
+
+                    signup();
 
                   },style: ElevatedButton.styleFrom(
 
@@ -113,10 +136,10 @@ return;
 
                   ),
 
-                    child:Text('Sign up',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 18 ),)
+                    child:Text('Sign up',style: TextStyle(color: Colors.brown.shade700,fontWeight: FontWeight.bold,fontSize: 18 ),)
                     ,),
                 ),
-                  SizedBox(height: 50,),
+                  SizedBox(height: 40,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -125,7 +148,17 @@ return;
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>Login()));
                     }, child: Text('Sign in',style: TextStyle(color: Colors.blue,fontWeight: FontWeight.bold,fontSize: 16 ),))
                   ],
-                )
+                ),
+                // ElevatedButton(
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => UsersScreen()),
+                //
+                //     );
+                //   },
+                //   child: Text('Show All Users'),
+                // )
 
               ]
           ),

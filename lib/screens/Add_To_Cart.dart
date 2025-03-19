@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task1/ProductModel.dart';
 import 'package:task1/models/ProductModel.dart';
-import 'package:task1/models/dataProvider.dart';
 import 'package:task1/screens/Check_out.dart';
+import 'package:task1/screens/Favourite.dart';
 
 import '../main.dart';
 
@@ -42,11 +43,14 @@ bool isVisible = true;
 
   }
   void removeItem(int index) {
-    setState(() {
+
       cartItems.removeAt(index);
       calculateTotal();
-      isVisible = !isVisible;
-    });
+      // isVisible = !isVisible;
+      SetIntosp(cartItems);
+      setState(() {
+      });
+
   }
 
 
@@ -131,7 +135,8 @@ bool isVisible = true;
                         ),
                         Expanded(
                           child: Column(
-                            // crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+
                             children: [
 
                               Text(
@@ -181,7 +186,7 @@ bool isVisible = true;
 
                                       GestureDetector(
                                         onTap: () {
-                                          setState(() {
+
                                             if (cartItems[index].qty > 1) {
                                               cartItems[index].qty--;
                                               subtotal -= num.parse(cartItems[index].price.toString());
@@ -192,7 +197,9 @@ bool isVisible = true;
                                               removeItem(index);
 
                                             }
-                                          });
+                                            calculateTotal();
+                                            SetIntosp(cartItems);
+                                            setState(() {});
 
                                         },
                                         child: Icon(Iconsax.minus_cirlce),
@@ -201,11 +208,13 @@ bool isVisible = true;
                                       Text(cartItems[index].qty.toString()),
                                       GestureDetector(
                                         onTap: () {
-                                          setState(() {
+
                                             cartItems[index].qty++;
                                             subtotal += num.parse(cartItems[index].price.toString());
                                             total = subtotal + delivary_charge + tax_charge;
-                                          });
+setState(() {
+
+});
                                         },
                                         child: Icon(Iconsax.add_circle),
                                       )
@@ -300,12 +309,12 @@ bool isVisible = true;
                           );
                         }:null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFF9FF40),
+                          backgroundColor: Colors.brown.shade200,
                           minimumSize: Size(250, 50),
                         ),
                         child: Text(
                           'Check Out',
-                          style: TextStyle(color: Colors.black, fontSize: 18),
+                          style: TextStyle(color: Colors.brown.shade700,fontWeight: FontWeight.bold, fontSize: 18),
                         )),
                   ),
                 ],
@@ -313,10 +322,12 @@ bool isVisible = true;
             ],
           ),
         ),
-      ):Center(child: Text('Your Cart is Empty',      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
+      ):Center(child: Text('Your Cart is Empty',style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
 
     );
   }
 }
+
+
 
 

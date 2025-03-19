@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task1/screens/Login.dart';
 
 import 'Sign_up.dart';
 
@@ -36,7 +37,7 @@ class _WelcomescreenState extends State<Welcomescreen> {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>SignUp()));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>Login()));
 
               },
               style: ElevatedButton.styleFrom(

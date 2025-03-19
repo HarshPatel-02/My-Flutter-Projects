@@ -1,19 +1,42 @@
+// class UserModel {
+//   int? id;
+//    String email;
+//    String password;
+//
+//   UserModel({this.id, required this.password, required this.email});
+//
+//
+//
+//   factory UserModel.fromMap(Map<String, dynamic> map){
+//     return UserModel(
+//         id : map['id'] as int,
+//         email : map['email'] ??'',
+//         password : map['password'] ?? '',
+//     );
+//   }
+//   Map<String, dynamic> toMap() {
+//     return {'id': id,'email': email,'password': password,};
+//   }
+// }
+
+
 class UserModel {
-  final int? id;
-  final String email;
-  final String password;
+  String email;
+  String password;
 
-  UserModel({this.id, required this.password, required this.email});
+  UserModel({required this.email, required this.password});
 
-  Map<String, Object?> toMap() {
-    return {'id': id,'email': email,'password': password,};
+  Map<String, dynamic> toMap() {
+    return {
+      'Email': email,
+      'Password': password,
+    };
   }
 
-  factory UserModel.fromMap(Map<String, dynamic> res){
+  factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-        id : res['id'],
-        email : res['email'],
-        password : res['password'],
+      email: map['Email'],
+      password: map['Password'],
     );
   }
 }

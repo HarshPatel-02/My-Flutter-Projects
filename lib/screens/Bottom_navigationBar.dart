@@ -1,15 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:path/path.dart';
 import 'package:task1/screens/Add_To_Cart.dart';
 import 'package:task1/screens/Home.dart';
 
 import 'package:task1/screens/Cart.dart';
 import 'package:task1/screens/Splash.dart';
-import 'package:task1/screens/profile.dart';
+
+import 'package:task1/screens/userprofile.dart';
 
 import 'package:task1/screens/Category.dart';
 
+import 'Profile.dart';
 import 'Sign_up-Extra.dart';
 
 class BottomNavigationbar extends StatefulWidget {
@@ -40,7 +43,7 @@ class _BottomNavigationbarState extends State<BottomNavigationbar> with SingleTi
     Home(),
     Categorys(),
     AddToCart(),
-    profile(),
+    Profile(),
 
   ];
   @override
@@ -62,18 +65,24 @@ class _BottomNavigationbarState extends State<BottomNavigationbar> with SingleTi
       ),
 
       bottomNavigationBar: BottomNavigationBar(
+        // backgroundColor: Colors.brown.shade200,
+
+          selectedItemColor: Colors.brown.shade500,
+          unselectedItemColor: Colors.brown.shade300,
           onTap: (index) {
-          setState(() {
-            myIndex = index;
-          });
+            setState(() {
+              myIndex = index;
+
+            });
             tabController!.animateTo(index);
           },
           currentIndex: myIndex,
 
           type: BottomNavigationBarType.fixed,items: [
         BottomNavigationBarItem(
+
           icon: Icon(Iconsax.home,),
-          label: 'Home'
+          label: 'Home',
         ),
 
         BottomNavigationBarItem(

@@ -13,32 +13,30 @@ class getData extends StatefulWidget {
 
 class _getDataState extends State<getData> {
 
-  // String firstname='';
-  // String lastname='';
+  String firstname='';
+  String lastname='';
   String email='';
   String Username='';
-  // String dateofbirth='';
-  // String mobileno='';
-  // String gender='';
+  String dateofbirth='';
+  String mobileno='';
+  String gender='';
 
 
   Future<String> getData()async{
     SharedPreferences sp =await SharedPreferences.getInstance();
     setState(() {
 
-        // firstname = sp.getString("firstname").toString();
-        // lastname = sp.getString("lastname").toString();
+        firstname = sp.getString("firstname").toString();
+        lastname = sp.getString("lastname").toString();
         Username = sp.getString("Username").toString();
         email = sp.getString("email").toString();
-        // dateofbirth = sp.getString("dateofbirth").toString();
-        // mobileno = sp.getString("mobileno").toString();
-        // gender = sp.getString("gender").toString();
-        sp.setString("cartItems", jsonEncode([
-
-          {"id":1,"qty":5},
-        ]));
-
-
+        dateofbirth = sp.getString("dateofbirth").toString();
+        mobileno = sp.getString("mobileno").toString();
+        gender = sp.getString("gender").toString();
+        // sp.setString("cartItems", jsonEncode([
+        //
+        //   {"id":1,"qty":5},
+        // ]));
 
     });
     return Username;
@@ -60,12 +58,12 @@ class _getDataState extends State<getData> {
       ),
       body: Column(
         children: [
-          Text(Username),
-          // Text(lastname),
+          Text(firstname),
+          Text(lastname),
           Text(email),
-          // Text(dateofbirth),
-          // Text(mobileno),
-          // Text(gender),
+          Text(dateofbirth),
+          Text(mobileno),
+          Text(gender),
 
 
 

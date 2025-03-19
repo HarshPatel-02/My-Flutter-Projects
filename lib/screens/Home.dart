@@ -1,11 +1,13 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:task1/main.dart';
 import 'package:task1/screens/Favourite.dart';
 import 'package:task1/screens/Search.dart';
 
-
 import '../ProductModel.dart';
+import '../models/ProductModel.dart';
 import '../models/dataProvider.dart';
 import 'Product_details.dart';
 
@@ -17,6 +19,13 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  void _onRemoveFromFavorites(ProductItem product) {
+    setState(() {
+      Fluttertoast.showToast(msg: 'Remove favorite');
+      favoriteProducts.remove(product);
+    });
+  }
+
   List imageList = [
     {"id": 1, "image_path": 'assets/images/sofa1.jpeg'},
     {"id": 2, "image_path": 'assets/images/sofa2.jpeg'},
@@ -48,6 +57,8 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+
+
     const IconData bed = IconData(0xe0d7, fontFamily: 'MaterialIcons');
     return Scaffold(
       appBar: AppBar(
@@ -60,7 +71,6 @@ class _HomeState extends State<Home> {
                 'assets/images/Splash_logo_only.png',
                 fit: BoxFit.fitHeight,
                 height: 40,
-
               ),
               // Image.asset('assets/images/Splash_logo_text.png',fit: BoxFit.fitHeight,),
             ],
@@ -70,28 +80,35 @@ class _HomeState extends State<Home> {
         title: Text(
           'decoze',
           style: TextStyle(
-              fontWeight: FontWeight.bold, color: Colors.brown.shade600, fontSize: 28,),
+            fontWeight: FontWeight.bold,
+            color: Colors.brown.shade600,
+            fontSize: 28,
+          ),
         ),
         actions: <Widget>[
-          IconButton(onPressed: () {
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Search(),
-                ),
-              );
-
-          }, icon: Icon(Iconsax.search_normal_1)),
-          IconButton(onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Favourite(),
-                ),
-              );
-
-          }, icon: Icon(Iconsax.heart)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Search(),
+                  ),
+                );
+              },
+              icon: Icon(Iconsax.search_normal_1)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Favourite(
+                      favoriteProducts: favoriteProducts,
+                      onRemoveFromFavorites: _onRemoveFromFavorites,
+                    ),
+                  ),
+                );
+              },
+              icon: Icon(Iconsax.heart)),
         ],
       ),
       body: SingleChildScrollView(
@@ -107,7 +124,6 @@ class _HomeState extends State<Home> {
                   // print(currentIndex);
                 },
                 child: Container(
-                  color: Colors.grey.shade200,
                   margin: EdgeInsets.symmetric(horizontal: 8),
                   height: 200,
                   width: double.infinity,
@@ -152,8 +168,8 @@ class _HomeState extends State<Home> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           color: currentIndex == entry.key
-                              ? Colors.red
-                              : Colors.black26),
+                              ? Colors.brown.shade500
+                              : Colors.brown.shade200),
                     ),
                   );
                 }).toList(),
@@ -162,41 +178,54 @@ class _HomeState extends State<Home> {
               SizedBox(
                 height: 140,
                 child: ListView.builder(
-                  itemBuilder: (context, index) => Container(
-                    // height: 100,
-                    // padding: EdgeInsets.all(16),
-                    width: 130,
-                    // margin: EdgeInsets.symmetric(horizontal: 10),
-
+// change in
+                  itemBuilder: (context, index) => GestureDetector(
+                    onTap: () {
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute (
+                      //     builder: (context) =>
+                      //     ProductDetails(id: globalProductList[index].id),
+                      //
+                      //     ));
+                    },
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 8),
-                      margin: EdgeInsets.symmetric(horizontal: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        // Border radius
-                        border: Border.all(color: Colors.grey, width: 1),
+                      // height: 100,
+                      // padding: EdgeInsets.all(16),
+                      width: 130,
+                      // margin: EdgeInsets.symmetric(horizontal: 10),
+
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 2, vertical: 8),
+                        margin: EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),color: Colors.brown.shade100
+                          // Border radius
+                          // border: Border.all(color: Colors.grey, width: 1),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Image.asset('assets/images/sofa1.jpeg'),
+                            // Icon(bed),
+                            Image.network(
+                              "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg",
+                              height: 85,
+                              width: 60,
+
+                            ),
+                            Text(
+                              categoryList![index].category.toString(),
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Image.asset('assets/images/sofa1.jpeg'),
-                          // Icon(bed),
-                          Image.network(
-                            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg",
-                            height: 85,
-                            width: 60,
-                          ),
-                          Text(
-                            categoryList![index].category.toString(),
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          )
-                        ],
-                      ),
+
                     ),
                   ),
                   itemCount: categoryList?.length,
                   scrollDirection: Axis.horizontal,
-
                 ),
               ),
               SizedBox(
@@ -214,100 +243,131 @@ class _HomeState extends State<Home> {
                 child: ListView.builder(
                   itemCount: globalProductList.length,
                   scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) => GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProductDetails(id: globalProductList[index].id),
+                  itemBuilder: (context, index) {
+                    final product = globalProductList[index];
+                    if (double.tryParse(product.rating) != null && double.parse(product.rating) < 4) {
+                      // return SizedBox(); // Hide products with a rating below 4
+                    }
+
+                    return  GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute (
+                            builder: (context) =>
+                                ProductDetails(id: globalProductList[index].id),
+                          ),
+                        );
+                        setState(() {
+
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        width: 150,
+                        margin: EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          // color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          // Border radius
+                          border: Border.all(color: Colors.brown, width: 1),
                         ),
-                      );
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      width: 150,
-                      margin: EdgeInsets.symmetric(horizontal: 8),
-                      decoration: BoxDecoration(
                         // color: Colors.blue.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        // Border radius
-                        border: Border.all(color: Colors.grey, width: 1),
-                      ),
-                      // color: Colors.blue.shade50,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Stack(
-                            children: <Widget>[
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(6),
-                                child: Container(
-                                    height: 140,
-                                    width: 130,
-                                    child: Image.network(
-                                      '${globalProductList[index].img}',
-                                      fit: BoxFit.fill,
-                                    )),
-                              ),
-                              // Icon(Icons.favorite_border,color: Colors.white,
-
-                              Positioned(
-                                top: 5,
-                                right: 5,
-                                child: IconButton.filledTonal(
-                                  onPressed: () {
-
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => Favourite(),
-                                        ),
-                                      );
-
-                                  },
-                                  icon: const Icon(Icons.favorite_border),
-                                  tooltip: 'favorite',
-                                  iconSize: 18,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Stack(
+                              children: <Widget>[
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: Container(
+                                      height: 140,
+                                      width: 130,
+                                      child: Image.network(
+                                        '${globalProductList[index].img}',
+                                        fit: BoxFit.fill,
+                                      )),
                                 ),
-                              )
-                            ],
-                          ),
-                          Text(
-                            '${globalProductList[index].category}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                          Text(
-                            '${globalProductList[index].title}\n',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, color: Colors.green),
-                          ),
-                          Text(
-                            '\$${globalProductList[index].price}',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, color: Colors.black),
-                          ),
-                          Row(
-                            spacing: 5,
-                            children: [
-                              Icon(
-                                Icons.star,
-                                size: 18,
-                                color: Colors.amber,
-                              ),
-                              Text(
-                                '${globalProductList[index].rating}',
-                                style: TextStyle(
-                                    fontSize: 10, fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          )
-                        ],
+                                // Icon(Icons.favorite_border,color: Colors.white,
+
+                                Positioned(
+                                  top: 5,
+                                  right: 5,
+                                  child: IconButton.filledTonal(
+                                    onPressed: () {
+                                      setState(() {
+                                        if (!favoriteProducts
+                                            .contains(
+                                           product)) {
+                                          favoriteProducts
+                                              .add(product);
+                                          Fluttertoast.showToast(
+                                              msg: 'Favorite Added');
+                                        } else {
+                                          favoriteProducts
+                                              .remove(product);
+                                          Fluttertoast.showToast(
+                                              msg: 'Favorite Remove');
+                                        }
+                                      });
+                                    },
+                                    icon: Icon(
+                                      favoriteProducts
+                                          .contains(product)
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color: favoriteProducts
+                                          .contains(product)
+                                          ? Colors.red
+                                          : Colors.brown,
+                                    ),
+                                    tooltip: 'favorite',
+                                    iconSize: 18,
+                                  ),
+                                )
+                              ],
+                            ),
+                            Text(
+                              '${globalProductList[index].category}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                            Text(
+                              '${globalProductList[index].title}\n',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green),
+                            ),
+                            Text(
+                              '\$${globalProductList[index].price}',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black),
+                            ),
+                            Row(
+                              spacing: 5,
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 18,
+                                  color: Colors.amber,
+                                ),
+                                Text(
+                                  '${globalProductList[index].rating}',
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+
+                  }
                 ),
               ),
               SizedBox(
@@ -453,7 +513,8 @@ class _HomeState extends State<Home> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProductDetails(id: globalProductList[index].id),
+                          builder: (context) =>
+                              ProductDetails(id: globalProductList[index].id),
                         ),
                       );
                     },
@@ -465,7 +526,7 @@ class _HomeState extends State<Home> {
                         // color: Colors.blue.shade50,
                         borderRadius: BorderRadius.circular(8),
                         // Border radius
-                        border: Border.all(color: Colors.grey, width: 1),
+                        border: Border.all(color: Colors.brown, width: 1),
                       ),
                       // color: Colors.blue.shade50,
                       child: Column(
@@ -489,7 +550,115 @@ class _HomeState extends State<Home> {
                                 top: 5,
                                 right: 5,
                                 child: IconButton.filledTonal(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    ListView.builder(
+                                      itemCount: globalProductList.length,
+                                      scrollDirection: Axis.horizontal,
+                                      itemBuilder: (context, index) =>
+                                          GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProductDetails(
+                                                      id: globalProductList[
+                                                              index]
+                                                          .id),
+                                            ),
+                                          );
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.all(8),
+                                          width: 150,
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 8),
+                                          decoration: BoxDecoration(
+                                            // color: Colors.blue.shade50,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            // Border radius
+                                            border: Border.all(
+                                                color: Colors.grey, width: 1),
+                                          ),
+                                          // color: Colors.blue.shade50,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Stack(
+                                                children: <Widget>[
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            6),
+                                                    child: Container(
+                                                        height: 140,
+                                                        width: 130,
+                                                        child: Image.network(
+                                                          '${globalProductList[index].img}',
+                                                          fit: BoxFit.fill,
+                                                        )),
+                                                  ),
+                                                  // Icon(Icons.favorite_border,color: Colors.white,
+
+                                                  Positioned(
+                                                    top: 5,
+                                                    right: 5,
+                                                    child:
+                                                        IconButton.filledTonal(
+                                                      onPressed: () {},
+                                                      icon: const Icon(Icons
+                                                          .favorite_border),
+                                                      tooltip: 'favorite',
+                                                      iconSize: 18,
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                              Text(
+                                                '${globalProductList[index].category}',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12),
+                                              ),
+                                              Text(
+                                                '${globalProductList[index].title}\n',
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.green),
+                                              ),
+                                              Text(
+                                                '\$${globalProductList[index].price}',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black),
+                                              ),
+                                              Row(
+                                                spacing: 5,
+                                                children: [
+                                                  Icon(
+                                                    Icons.star,
+                                                    size: 18,
+                                                    color: Colors.amber,
+                                                  ),
+                                                  Text(
+                                                    '${globalProductList[index].rating}',
+                                                    style: TextStyle(
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                   icon: const Icon(Icons.favorite_border),
                                   tooltip: 'favorite',
                                   iconSize: 18,
@@ -507,12 +676,14 @@ class _HomeState extends State<Home> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, color: Colors.green),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green),
                           ),
                           Text(
                             '\$${globalProductList[index].price}',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, color: Colors.black),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
                           ),
                           Row(
                             spacing: 5,
@@ -535,15 +706,12 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               ),
-
               SizedBox(
                 height: 10,
               ),
               SizedBox(
                 height: 10,
               ),
-
-
             ],
           ),
         ),

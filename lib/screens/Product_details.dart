@@ -41,27 +41,14 @@ import 'package:shared_preferences/shared_preferences.dart';
           .toList()
           .first;
 
+      setState(() {
+        product.qty=1;
+      });
       super.initState();
       // getSharedPreferences();
 
     }
-    // late SharedPreferences sp;
-    //
-    //
-    // void saveIntosp() {
-    //   List<String> cartItemStore = cartItems.map((e) => jsonEncode(e.toMap())).toList();
-    //   sp.setStringList("CartProduct", cartItemStore);
-    // }
-    //
-    // void getIntosp() {
-    //   List<String>? cartItemStore = sp.getStringList("CartProduct");
-    //   if (cartItemStore != null) {
-    //     cartItems = cartItemStore.map((e) => ProductItem.fromMap(jsonDecode(e))).toList();
-    //   }
-    //   setState(() {
-    //
-    //   });
-    // }
+
     double rating = 0;
 
     List imageList = [
@@ -104,7 +91,7 @@ import 'package:shared_preferences/shared_preferences.dart';
               children: [
                 InkWell(
                   onTap: () {
-                    print(currentIndex);
+                    // print(currentIndex);
                   },
                   child: Container(
                     color: Colors.grey.shade200,
@@ -119,6 +106,7 @@ import 'package:shared_preferences/shared_preferences.dart';
                                 item['image_path'],
                                 fit: BoxFit.contain,
                                 width: double.infinity,
+
                               ),
                         )
                             .toList(),
@@ -143,8 +131,8 @@ import 'package:shared_preferences/shared_preferences.dart';
                       .asMap()
                       .entries
                       .map((entry) {
-                    print(entry);
-                    print(entry.key);
+                    // print(entry);
+                    // print(entry.key);
                     return GestureDetector(
                       onTap: () => carouselController.animateToPage(entry.key),
                       child: Container(
@@ -156,8 +144,8 @@ import 'package:shared_preferences/shared_preferences.dart';
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             color: currentIndex == entry.key
-                                ? Colors.green
-                                : Colors.red),
+                                ? Colors.brown.shade500
+                                : Colors.brown.shade200),
                       ),
                     );
                   }).toList(),
@@ -191,7 +179,7 @@ import 'package:shared_preferences/shared_preferences.dart';
                           fontSize: 25),
                     ),
                     Row(
-                      spacing: 10,
+                      spacing: 8,
                       children: [
                         // Icon(Iconsax.heart),
                         GestureDetector(
@@ -205,7 +193,26 @@ import 'package:shared_preferences/shared_preferences.dart';
                             );
                             setState(() {});
                           },
-                          child: Icon(Iconsax.heart),
+                          child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                if (!favoriteProducts.contains(product)) {
+                                  favoriteProducts.add(product);
+                                  Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
+                                } else {
+                                  favoriteProducts.remove(product);
+                                  Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
+                                }
+                              });
+                            },
+                            icon: Icon(
+                              favoriteProducts.contains(product) ? Icons.favorite : Icons.favorite_border,
+                              color: favoriteProducts.contains(product) ? Colors.red : Colors.brown,
+                            ),
+                            tooltip: 'Favorite',
+                            iconSize: 24,
+                          ),
+
                         ),
 
                         GestureDetector(
@@ -216,6 +223,9 @@ import 'package:shared_preferences/shared_preferences.dart';
                               }
                             });
                           },
+                          // onTap: () => setState(() {
+                          //   product.decrementQty();
+                          // }),
                           child: Icon(Iconsax.minus_cirlce),
                         ),
 
@@ -226,6 +236,9 @@ import 'package:shared_preferences/shared_preferences.dart';
                               product.qty++;
                             });
                           },
+                          // onTap: () =>setState(() {
+                          //   product.incrementQty();
+                          // }),
                           child: Icon(Iconsax.add_circle),
                         )
                       ],
@@ -292,15 +305,16 @@ import 'package:shared_preferences/shared_preferences.dart';
                         print(cartItems.length.toString() + 'adbbd2');
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0x4D9B7A5A),
+                        backgroundColor: Colors.brown.shade200,
                         minimumSize: Size(250, 50),
-
                       ),
+
                       child: Text(
                         'Add to Cart',
-                        style: TextStyle(color: Colors.black, fontSize: 18),
+                        style: TextStyle(color: Colors.brown.shade700,fontWeight: FontWeight.bold ,fontSize: 18),
 
                       )),
+
                 )
               ],
             ),

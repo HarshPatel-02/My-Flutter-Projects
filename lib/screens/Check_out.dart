@@ -137,7 +137,7 @@ class _CheckOutState extends State<CheckOut> {
                                     IconDisable;
                                     setState(() {
                                       if (cartItems[index].qty > 1) {
-                                        cartItems[index].qty--;
+                                        cartItems[index].qty;
                                         subtotal -= num.parse(cartItems[index].price.toString());
                                         total = subtotal + delivary_charge + tax_charge;
                                       }
@@ -150,7 +150,7 @@ class _CheckOutState extends State<CheckOut> {
                                   onTap: IconDisable?null:() {
                                     IconDisable;
                                     setState(() {
-                                      cartItems[index].qty++;
+                                      cartItems[index].qty;
                                       subtotal += num.parse(cartItems[index].price.toString());
                                       total = subtotal + delivary_charge + tax_charge;
                                     });
@@ -244,12 +244,12 @@ class _CheckOutState extends State<CheckOut> {
                     // );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFF9FF40),
+                    backgroundColor: Colors.brown.shade200,
                     minimumSize: Size(250, 50),
                   ),
                   child: Text(
                     'Payment',
-                    style: TextStyle(color: Colors.black, fontSize: 18),
+                    style: TextStyle(color: Colors.brown.shade700, fontSize: 18),
                   )),
             ),
           ],
