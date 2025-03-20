@@ -143,50 +143,6 @@ class _ProfileState extends State<Profile> {
         ],
       ),
 
-
-
-
-
-//         body:Container(
-//           height: double.infinity,
-//
-//           child: Card(
-//             margin: EdgeInsets.only(top:300),
-//
-//             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-//             color: Colors.brown.shade100,
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.start,
-//
-//               children: [
-//                 Padding(
-//                   padding: const EdgeInsets.symmetric(vertical: 25),
-//                   child: Row(
-//                     mainAxisAlignment: MainAxisAlignment.center,
-// spacing: 20,
-//                     children: [
-//                       Container(
-//                         decoration: BoxDecoration(border:Border.all(color: Colors.brown,width: 1.5) ),
-//                         child: IconButton(onPressed: () {
-//
-//                         }, icon:Icon(Iconsax.heart,),),
-//
-//                       ),
-//                       Container(
-//                         decoration: BoxDecoration(border:Border.all(color: Colors.brown,width: 1.5) ),
-//                         child: IconButton(onPressed: () {
-//
-//                         }, icon:Icon(Icons.shopping_cart_outlined),),
-//
-//                       ),
-//                                          ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         )
-
     );
   }
 }
