@@ -27,9 +27,13 @@ class _ProfileState extends State<Profile> {
   void _loadUserName() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     setState(() {
-      _userName = sp.getString('userEmail') ?? "Guest"; // Default if no name found
+      _userName = sp.getString('firstname') ?? "Guest";  // Fetch firstname instead of userEmail
+    });
+    setState(() {
+
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -53,18 +57,45 @@ class _ProfileState extends State<Profile> {
             color: Colors.brown.shade100,
             child: Column(
               children: [
-                // SizedBox(height: 40,),
-                Icon(Icons.account_circle,size: 120,color: Colors.brown.shade300),
-                Text('Welcome , $_userName!',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 23,color: Colors.brown.shade500),),
+                Stack(
+                  children: [
+                    SizedBox(height: 120,width: 120,
+                    child:ClipRRect(
+                      borderRadius: BorderRadius.circular(100),child: const Image(image: NetworkImage( 'https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg?semt=ais_hybrid'),),
+                    ) ,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 35,
+                        height: 35,
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(100),color: Colors.brown),
+                        child:  InkWell(onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => new userprofile()));
+
+                        },
+                            child: Icon(Icons.edit , size: 20,color: Colors.brown.shade200,)),
+
+                      ),
+                    )
+                  ],
+                ),
+                // Icon(Icons.account_circle,size: 120,color: Colors.brown.shade300),
+                Text('Welcome, $_userName',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 23,color: Colors.brown.shade500),),
                 TextButton(
-                    onPressed: () {
+                    onPressed: () async{
+                      bool? isUpdated = await
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => userprofile()));
+                      if (isUpdated == true) {
+                        _loadUserName(); // ✅ Refresh the name if data was updated
+                      }
                     },
                     child: Text(
-                      'Edit',
+                      'Edit Profile',
                       style: TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,

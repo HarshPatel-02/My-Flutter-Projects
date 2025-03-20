@@ -12,6 +12,7 @@ import 'package:task1/screens/Dinning.dart';
 import 'package:task1/screens/Home.dart';
 import 'package:task1/screens/Kitchen_details.dart';
 import 'package:task1/screens/Login.dart';
+import 'package:task1/screens/Profile.dart';
 import 'package:task1/screens/Sign_up-Extra.dart';
 import 'package:task1/screens/Sign_up.dart';
 import 'package:task1/screens/Splash.dart';
@@ -80,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //     brightness:Brightness.light,
       // ),
       // home: Home(),
-      // home:profile(),
+      home:Profile(),
       //   home: Login(),
     // home: SignUp(),
     // home: BottomNavigationbar(),
@@ -93,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // home: KitchenDetails(),
 
     // home: Categorys(),
-      home: SplashScreen(),
+    //   home: SplashScreen(),
     //   home: UsersScreen(),
       // home: Userapp(),
       // home: AddToCart(),

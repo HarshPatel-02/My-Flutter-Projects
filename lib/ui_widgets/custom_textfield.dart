@@ -9,6 +9,7 @@ class CustomTextfield extends StatelessWidget {
   final bool obscureText;
   final VoidCallback? onSuffixIconPressed;
 
+
   CustomTextfield({
     super.key,
     required this.hintText,
@@ -17,6 +18,7 @@ class CustomTextfield extends StatelessWidget {
     this.suffixIcon,
     this.obscureText = false,
     this.onSuffixIconPressed,
+
   });
 
   @override
@@ -25,6 +27,7 @@ class CustomTextfield extends StatelessWidget {
       cursorColor: Colors.brown,
       controller: controller,
       obscureText: obscureText,
+
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.brown.shade200, width: 1.6),
