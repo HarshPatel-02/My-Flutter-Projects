@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/screens/getData.dart';
 import 'package:task1/ui_widgets/custom_textfield.dart';
 
+
 class userprofile extends StatefulWidget {
   const userprofile({super.key});
 
@@ -134,21 +135,25 @@ class _userprofileState extends State<userprofile> {
               Center(
                 child: Container(
                   width: double.infinity,
+                  height: 56,
                   decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.grey,
-                        width: 1,
+                        color: Colors.brown.shade200,
+
+                        width: 1.6,
                       ),
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(32)),
                   child: DropdownButton<String>(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     borderRadius: BorderRadius.circular(10),
+
                     iconSize: 24,
+
                     onChanged: (String? newValue) {
                       dropdownValue = newValue!;
                       if (mounted) setState(() {});
                     },
-                    elevation: 16,
+
                     isExpanded: true,
                     underline: SizedBox.shrink(),
                     value: dropdownValue,
@@ -157,6 +162,8 @@ class _userprofileState extends State<userprofile> {
                         return DropdownMenuItem<String>(
                           child: Text(value),
                           value: value,
+
+
                         );
                       },
                     ).toList(),

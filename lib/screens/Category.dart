@@ -8,8 +8,8 @@ import '../models/dataProvider.dart';
 
 
 class Categorys extends StatefulWidget {
-  // String category;
-  const Categorys({super.key,});
+  final String category;
+  const Categorys({super.key,required this.category});
 
   @override
   State<Categorys> createState() => _CategorysState();
@@ -19,7 +19,15 @@ class _CategorysState extends State<Categorys> {
   String selectedCategory = "All";
 
   @override
+  void initState() {
+    selectedCategory = widget.category;
+    // TODO: implement initState
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
+
+
     // Filtering products based on selectedCategory
     final filteredProducts = selectedCategory == "All"
         ? globalProductList.toList()

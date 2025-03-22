@@ -41,7 +41,7 @@ class _BottomNavigationbarState extends State<BottomNavigationbar> with SingleTi
   List<Widget> widgetList = [
 
     Home(),
-    Categorys(),
+    Categorys(category: 'All',),
     AddToCart(),
     Profile(),
 
@@ -65,6 +65,7 @@ class _BottomNavigationbarState extends State<BottomNavigationbar> with SingleTi
       ),
 
       bottomNavigationBar: BottomNavigationBar(
+
         // backgroundColor: Colors.brown.shade200,
 
           selectedItemColor: Colors.brown.shade500,

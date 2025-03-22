@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import '../models/ProductModel.dart';
+import 'Payment.dart';
 
 class CheckOut extends StatefulWidget {
   final num total;
@@ -236,12 +237,12 @@ class _CheckOutState extends State<CheckOut> {
               padding: const EdgeInsets.symmetric(vertical: 200),
               child: ElevatedButton(
                   onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => new CheckOut(),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => new Payment(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.brown.shade200,

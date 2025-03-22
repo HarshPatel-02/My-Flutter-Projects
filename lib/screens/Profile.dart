@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +21,9 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
 
   String _userName = "Guest";
+  String? _profileImage;
+
+
   @override
   void initState() {
     super.initState();
@@ -28,6 +33,7 @@ class _ProfileState extends State<Profile> {
     SharedPreferences sp = await SharedPreferences.getInstance();
     setState(() {
       _userName = sp.getString('firstname') ?? "Guest";  // Fetch firstname instead of userEmail
+      _profileImage = sp.getString('profileImage');
     });
     setState(() {
 
@@ -59,11 +65,20 @@ class _ProfileState extends State<Profile> {
               children: [
                 Stack(
                   children: [
-                    SizedBox(height: 120,width: 120,
-                    child:ClipRRect(
-                      borderRadius: BorderRadius.circular(100),child: const Image(image: NetworkImage( 'https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg?semt=ais_hybrid'),),
-                    ) ,
+                    SizedBox(
+                      height: 120,
+                      width: 120,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: _profileImage != null
+                            ? Image.memory(base64Decode(_profileImage!), fit: BoxFit.cover)
+                            : const Image(
+                          image: NetworkImage('https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
+
                     Positioned(
                       bottom: 0,
                       right: 0,
@@ -71,9 +86,15 @@ class _ProfileState extends State<Profile> {
                         width: 35,
                         height: 35,
                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(100),color: Colors.brown),
-                        child:  InkWell(onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => new userprofile()));
-
+                        child:  InkWell(onTap: () async {
+                          // Await added
+                          bool? isUpdated = await Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const userprofile()),
+                          );
+                          if (isUpdated == true) {
+                            _loadUserName(); // Refresh after update
+                          }
                         },
                             child: Icon(Icons.edit , size: 20,color: Colors.brown.shade200,)),
 
@@ -83,24 +104,25 @@ class _ProfileState extends State<Profile> {
                 ),
                 // Icon(Icons.account_circle,size: 120,color: Colors.brown.shade300),
                 Text('Welcome, $_userName',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 23,color: Colors.brown.shade500),),
-                TextButton(
-                    onPressed: () async{
-                      bool? isUpdated = await
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => userprofile()));
-                      if (isUpdated == true) {
-                        _loadUserName(); // ✅ Refresh the name if data was updated
-                      }
-                    },
-                    child: Text(
-                      'Edit Profile',
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16),
-                    ))
+             // edit link
+                // TextButton(
+                //     onPressed: () async{
+                //       bool? isUpdated = await
+                //       Navigator.push(
+                //           context,
+                //           MaterialPageRoute(
+                //               builder: (context) => userprofile()));
+                //       if (isUpdated == true) {
+                //         _loadUserName(); // ✅ Refresh the name if data was updated
+                //       }
+                //     },
+                //     child: Text(
+                //       'Edit Profile',
+                //       style: TextStyle(
+                //           color: Colors.blue,
+                //           fontWeight: FontWeight.bold,
+                //           fontSize: 16),
+                //     ))
 
               ],
             ),
@@ -108,7 +130,7 @@ class _ProfileState extends State<Profile> {
           Positioned(bottom: 0,
             width: MediaQuery.of(context).size.width,
             child: Container(
-              height:MediaQuery.of(context).size.height*0.60,
+              height:MediaQuery.of(context).size.height*0.62,
 
               // margin: EdgeInsets.symmetric(vertical:10 ),
               decoration: BoxDecoration(
@@ -159,9 +181,15 @@ class _ProfileState extends State<Profile> {
                     spacing: 10,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.exit_to_app_sharp,size: 32,color: Colors.red.shade600,),
+                      InkWell(
+    onTap: () {
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const Login()),
+              (route)=>false );
+    },
+                          child: Icon(Icons.exit_to_app_sharp,size: 32,color: Colors.red.shade600,)),
                       TextButton(onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Login()),);
+                        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const Login()),
+                            (route)=>false );
                       }, child: Text('Logout',style: TextStyle(fontSize: 25,color: Colors.red.shade600,fontWeight: FontWeight.w600),)
                       )
 

@@ -13,9 +13,11 @@ import 'package:task1/screens/Home.dart';
 import 'package:task1/screens/Kitchen_details.dart';
 import 'package:task1/screens/Login.dart';
 import 'package:task1/screens/Profile.dart';
+import 'package:task1/screens/Search.dart';
 import 'package:task1/screens/Sign_up-Extra.dart';
 import 'package:task1/screens/Sign_up.dart';
 import 'package:task1/screens/Splash.dart';
+import 'package:task1/screens/WelcomeScreen.dart';
 import 'package:task1/screens/api.dart';
 import 'package:task1/screens/userprofile.dart';
 // import 'package:task1/screens/userprofile.dart';
@@ -81,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //     brightness:Brightness.light,
       // ),
       // home: Home(),
-      home:Profile(),
+      // home:Profile(),
       //   home: Login(),
     // home: SignUp(),
     // home: BottomNavigationbar(),
@@ -92,14 +94,14 @@ class _MyHomePageState extends State<MyHomePage> {
       // home: BathDetails(),
       // home: DiningDetails(),
       // home: KitchenDetails(),
-
+      // home: Search(),
     // home: Categorys(),
     //   home: SplashScreen(),
     //   home: UsersScreen(),
       // home: Userapp(),
       // home: AddToCart(),
       // home: Profile(),
-
+         home: Welcomescreen(),
       // theme: lightMode,
       // darkTheme: darkMode,
     );

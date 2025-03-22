@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:iconsax/iconsax.dart';
@@ -29,7 +30,7 @@ class _LoginState extends State<Login> {
   void login() async {
     String uemail = Email.text.trim();
     String upassword = Password.text.trim();
-
+    final bool isValid = EmailValidator.validate(uemail);
     if (uemail.isEmpty) {
       Fluttertoast.showToast(msg: 'Please Enter Email');
       return;
