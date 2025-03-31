@@ -19,10 +19,11 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final _formkey= GlobalKey<FormState>();
 
   TextEditingController Email = TextEditingController();
   TextEditingController Password = TextEditingController();
-  final DataBaseHelper dbHelper = DataBaseHelper();
+  final DataBaseHelper dbHelper = DataBaseHelper.instance;
 
   bool _obscureText = true;
 
@@ -85,6 +86,17 @@ class _LoginState extends State<Login> {
     }
   }
 
+  // validation email or pass
+  // String? validateEmail(String? email){
+  //   RegExp emailRegex = RegExp( r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+  //   final isEmailValid = emailRegex.hasMatch(email ?? '');
+  //   if(!isEmailValid){
+  //     return 'Please Enter Valid Email';
+  //   }
+  //   return null;
+  // }
+  //
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,37 +125,69 @@ class _LoginState extends State<Login> {
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 35,
               children: [
-                CustomTextfield(hintText: 'Email', controller: Email, icon: Icons.email),
-                CustomTextfield(
-                    hintText: 'Password',
-                    controller: Password,
-                    icon: Iconsax.lock5,
-                    obscureText: _obscureText,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureText ? Iconsax.eye_slash : Iconsax.eye,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
+                Form(
+                    key:_formkey,
+                    child: Column(
+                  spacing: 35,
+                  children: [
+                    CustomTextfield(hintText: 'Email', controller: Email, icon: Icons.email,
+                      validator: (value){if (value == null || value.isEmpty) {
+                      return 'Please enter email';
+                    }
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                      return 'Please enter valid email';
+                    }
+                    return null;
+                    },),
+                    CustomTextfield(
+                      hintText: 'Password',
+                      controller: Password,
+                      icon: Iconsax.lock5,
+                      obscureText: _obscureText,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$').hasMatch(value)) {
+                          return 'Password must contain letters and numbers';
+                        }
+                        return null;
                       },
-                    ), onSuffixIconPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-                ),
+
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText ? Iconsax.eye_slash : Iconsax.eye,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ), onSuffixIconPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                    ),
+
+                  ],
+                )),
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.only(top: 15),
                     child: ElevatedButton(
-                      onPressed: login,
+                      onPressed:() {
+                        if (_formkey
+                            .currentState!.validate()) ;
+                        login(); },
                       // Navigator.pop(context);
                       // Navigator.push(context, MaterialPageRoute(builder: (context)=>BottomNavigationbar()));
 
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.brown.shade200,
+                        backgroundColor: Colors.brown.shade100,
                         minimumSize: Size(230, 50),
                       ),
                       child: Text(
@@ -190,3 +234,4 @@ class _LoginState extends State<Login> {
     );
   }
 }
+

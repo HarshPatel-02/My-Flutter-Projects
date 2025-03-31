@@ -68,8 +68,8 @@ class _HomeState extends State<Home> {
           child: Row(
             children: [
               Image.asset(
-                'assets/images/Splash_logo_only.png',
-                fit: BoxFit.fitHeight,
+                'assets/images/Logo_22.png',
+                // fit: BoxFit.fitHeight,
                 height: 40,
               ),
               // Image.asset('assets/images/Splash_logo_text.png',fit: BoxFit.fitHeight,),

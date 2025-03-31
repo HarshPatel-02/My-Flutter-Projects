@@ -8,7 +8,7 @@ class UsersScreen extends StatefulWidget {
 }
 
 class _UsersScreenState extends State<UsersScreen> {
-  final DataBaseHelper dbHelper = DataBaseHelper();
+  final DataBaseHelper dbHelper = DataBaseHelper.instance;
   List<UserModel> users = [];
 
   @override

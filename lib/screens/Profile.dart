@@ -182,12 +182,16 @@ class _ProfileState extends State<Profile> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       InkWell(
-    onTap: () {
+    onTap: () async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const Login()),
               (route)=>false );
     },
                           child: Icon(Icons.exit_to_app_sharp,size: 32,color: Colors.red.shade600,)),
-                      TextButton(onPressed: () {
+                      TextButton(onPressed: () async {
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        await prefs.clear();
                         Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const Login()),
                             (route)=>false );
                       }, child: Text('Logout',style: TextStyle(fontSize: 25,color: Colors.red.shade600,fontWeight: FontWeight.w600),)

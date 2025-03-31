@@ -8,7 +8,7 @@ class CustomTextfield extends StatelessWidget {
   IconData? icon;
   final bool obscureText;
   final VoidCallback? onSuffixIconPressed;
-
+  final validator;
 
   CustomTextfield({
     super.key,
@@ -18,15 +18,16 @@ class CustomTextfield extends StatelessWidget {
     this.suffixIcon,
     this.obscureText = false,
     this.onSuffixIconPressed,
-
+  this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       cursorColor: Colors.brown,
       controller: controller,
       obscureText: obscureText,
+      validator: validator,
 
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(

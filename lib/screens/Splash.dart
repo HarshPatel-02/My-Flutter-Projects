@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Timer(Duration(seconds: 2), (){
+    Timer(Duration(seconds: 3), (){
         Navigator.pushReplacement(context,
             MaterialPageRoute(
               builder: (context) => Welcomescreen(),
@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return  Scaffold(
       backgroundColor: Colors.brown.shade200,
-      body: Container(child: Center(child: Image.asset('assets/images/Splash_logo.png',fit: BoxFit.fill,width: 140,height: 140,)),),
+      body: Container(child: Center(child: Image.asset('assets/images/Splash_2.png',fit: BoxFit.fill,width: 280,height: 280,)),),
       // body:
       // Container(
       //   // color: Colors.black,

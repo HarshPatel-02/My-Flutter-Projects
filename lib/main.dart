@@ -5,6 +5,7 @@ import 'package:task1/Theme/theme.dart';
 import 'package:task1/screens/Add_To_Cart.dart';
 import 'package:task1/screens/Bath_details.dart';
 import 'package:task1/screens/BedRoom.dart';
+import 'package:task1/screens/Payment.dart';
 import 'package:task1/screens/Product_details.dart';
 import 'package:task1/screens/Category.dart';
 import 'package:task1/screens/Dining_details.dart';
@@ -36,7 +37,10 @@ List<ProductItem> favoriteProducts = [];
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp();
-  DataBaseHelper dbHelper = DataBaseHelper();
+  DataBaseHelper dbHelper = DataBaseHelper.instance;
+  // await dbHelper.printAllTables();
+ // await dbHelper.deleteDatabaseFile();
+  await dbHelper.printTableColumns('CART');
   await SharedPreferences.getInstance();
   runApp(const MyApp());
 }
@@ -86,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // home:Profile(),
       //   home: Login(),
     // home: SignUp(),
-    // home: BottomNavigationbar(),
+    home: BottomNavigationbar(),
     //   home: Bedroom(),
     //   home: Dinning(),
 
@@ -101,7 +105,9 @@ class _MyHomePageState extends State<MyHomePage> {
       // home: Userapp(),
       // home: AddToCart(),
       // home: Profile(),
-         home: Welcomescreen(),
+      //    home: Welcomescreen(),
+
+      // home: Payment(),
       // theme: lightMode,
       // darkTheme: darkMode,
     );
