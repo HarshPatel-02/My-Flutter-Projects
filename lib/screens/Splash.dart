@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/screens/Home.dart';
+import 'package:task1/screens/Login.dart';
 import 'package:task1/screens/WelcomeScreen.dart';
 
 import 'Bottom_navigationBar.dart';
@@ -19,12 +21,26 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    Timer(Duration(seconds: 3), (){
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(
-              builder: (context) => Welcomescreen(),
-            )
+    Timer(Duration(seconds: 3), ()async{
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool hasSeenWelcome = prefs.getBool('hasSeenWelcome') ?? false;
+      if (hasSeenWelcome) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Login()),
         );
+      } else {
+        // If the user hasn't seen the welcome screen, show the WelcomeScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Welcomescreen()),
+        );
+      };
+      // Navigator.pushReplacement(context,
+      //       MaterialPageRoute(
+      //         builder: (context) => Welcomescreen(),
+      //       )
+      //   );
     });
 
   }

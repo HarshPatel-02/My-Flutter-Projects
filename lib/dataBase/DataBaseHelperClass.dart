@@ -1,9 +1,9 @@
+import 'dart:io' as io;
 
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:task1/models/UserModel.dart';
-import 'dart:io' as io;
 
 import '../models/ProductModel.dart';
 
@@ -27,9 +27,21 @@ class DataBaseHelper {
   static const String C_CATEGORY = 'category';
   static const String C_RATING = 'rating';
 
-  static final DataBaseHelper instance = DataBaseHelper._internal();
-  DataBaseHelper._internal();
+  // fAV table
+  static const String TABLE_FAVOURITE = 'FAVOURITE';
 
+  static const String F_ID = 'id';
+  static const String F_TITLE = 'title';
+  static const String F_DESCRIPTION = 'description';
+  static const String F_PRICE = 'price';
+  static const String F_QTY = 'qty';
+  static const String F_IMG = 'img';
+  static const String F_CATEGORY = 'category';
+  static const String F_RATING = 'rating';
+
+  static final DataBaseHelper instance = DataBaseHelper._internal();
+
+  DataBaseHelper._internal();
 
   Future<Database?> get db async {
     if (_db != null) {
@@ -49,11 +61,11 @@ class DataBaseHelper {
   Future<void> _onCreate(Database db, int version) async {
     await db.execute(
         "CREATE TABLE IF NOT EXISTS $TABLE_USER (id INTEGER PRIMARY KEY AUTOINCREMENT, "
-            "$C_EMAIL TEXT NOT NULL UNIQUE, "
-            "$C_PASSWORD TEXT NOT NULL)");
+        "$C_EMAIL TEXT NOT NULL UNIQUE, "
+        "$C_PASSWORD TEXT NOT NULL)");
 
     await db.execute('''
-      CREATE TABLE $TABLE_CART (
+      CREATE TABLE IF NOT EXISTS $TABLE_CART (
         $C_ID INTEGER PRIMARY KEY,
         $C_TITLE TEXT,
         $C_DESCRIPTION TEXT,
@@ -65,17 +77,30 @@ class DataBaseHelper {
       )
     ''');
 
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $TABLE_FAVOURITE (
+        $F_ID INTEGER PRIMARY KEY,
+        $F_TITLE TEXT,
+        $F_DESCRIPTION TEXT,
+        $F_PRICE TEXT,
+        $F_CATEGORY TEXT,
+        $F_RATING TEXT,
+        $F_QTY INTEGER DEFAULT 1,
+        $F_IMG String
+      )
+    ''');
+
     print("Database tables created successfully");
     print("Table Created: $TABLE_USER");
   }
 
   Future<int?> insert(UserModel user) async {
-
     var dbClient = await db;
     try {
-      int id = await dbClient!.insert(TABLE_USER,user.toMap());
+      int id = await dbClient!.insert(TABLE_USER, user.toMap());
 
-      print("Inserted User - ID: $id, Email: ${user.email}, Password: ${user.password}");
+      print(
+          "Inserted User - ID: $id, Email: ${user.email}, Password: ${user.password}");
       return id;
     } catch (e) {
       print("Error inserting user: ${e.toString()}");
@@ -99,15 +124,14 @@ class DataBaseHelper {
   // print table column in sqlite
   Future<void> printTableColumns(String tableName) async {
     var dbClient = await db;
-    List<Map<String, dynamic>> columns = await dbClient!.rawQuery("PRAGMA table_info($tableName)");
+    List<Map<String, dynamic>> columns =
+        await dbClient!.rawQuery("PRAGMA table_info($tableName)");
 
     print("📌 Columns in Table: $tableName");
     for (var column in columns) {
       print("🔹 ${column['name']} (Type: ${column['type']})");
     }
-
   }
-
 
   Future<UserModel?> getUserByEmail(String email) async {
     final database = await db;
@@ -144,6 +168,7 @@ class DataBaseHelper {
       }
     }
   }
+
 //  database remove
 // Future<void> deleteDatabaseFile() async {
 //   io.Directory documentDirectory = await getApplicationDocumentsDirectory();
@@ -151,7 +176,6 @@ class DataBaseHelper {
 //   await deleteDatabase(path);
 //   print(' Database deleted. Restart the app.');
 // }
-
 
   // Cart operations
   Future<int> addToCart(ProductItem product) async {
@@ -218,5 +242,68 @@ class DataBaseHelper {
     }
   }
 
+// Fav operations
+  Future<int> addToFav(ProductItem product) async {
+    try {
+      final db = await this.db;
+      return await db!.insert(
+        TABLE_FAVOURITE,
+        product.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      print("Error adding to cart: $e");
+      return 0;
+    }
+  }
 
+  Future<List<ProductItem>> getFavItems() async {
+    try {
+      final db = await this.db;
+      final List<Map<String, dynamic>> maps = await db!.query(TABLE_FAVOURITE);
+      return List.generate(maps.length, (i) => ProductItem.fromMap(maps[i]));
+    } catch (e) {
+      print("Error getting cart items: $e");
+      return [];
+    }
+  }
+
+  Future<int> updateFavItem(ProductItem product) async {
+    try {
+      final db = await this.db;
+      return await db!.update(
+        TABLE_FAVOURITE,
+        product.toMap(),
+        where: '$F_ID = ?',
+        whereArgs: [product.id],
+      );
+    } catch (e) {
+      print("Error updating cart item: $e");
+      return 0;
+    }
+  }
+
+  Future<int> removeFromFav(int productId) async {
+    try {
+      final db = await this.db;
+      return await db!.delete(
+        TABLE_FAVOURITE,
+        where: '$F_ID = ?',
+        whereArgs: [productId],
+      );
+    } catch (e) {
+      print("Error removing from cart: $e");
+      return 0;
+    }
+  }
+
+  Future<int> clearFav() async {
+    try {
+      final db = await this.db;
+      return await db!.delete(TABLE_FAVOURITE);
+    } catch (e) {
+      print("Error clearing cart: $e");
+      return 0;
+    }
+  }
 }

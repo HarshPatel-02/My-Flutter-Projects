@@ -5,7 +5,6 @@ import 'package:path/path.dart';
 import 'package:task1/screens/Add_To_Cart.dart';
 import 'package:task1/screens/Home.dart';
 
-import 'package:task1/screens/Cart.dart';
 import 'package:task1/screens/Splash.dart';
 
 import 'package:task1/screens/userprofile.dart';

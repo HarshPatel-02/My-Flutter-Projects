@@ -43,16 +43,17 @@ class _AddToCartState extends State<AddToCart> {
     _loadCartItems();
 
   }
-  void removeItem(int index) {
-
-    cartItems.removeAt(index);
-    _calculateTotal();
-    // isVisible = !isVisible;
-    // SetIntosp(cartItems);
-    setState(() {
-    });
-
-  }
+  // void removeItem(int index) {
+  //
+  //   cartItems.removeAt(index);
+  //   _calculateTotal();
+  //   _calculateTotal();
+  //   // isVisible = !isVisible;
+  //   // SetIntosp(cartItems);
+  //   setState(() {
+  //   });
+  //
+  // }
 
   Future<void> _loadCartItems() async {
     try {
@@ -190,7 +191,7 @@ class _AddToCartState extends State<AddToCart> {
                               children: [
                                 InkWell(
                                   onTap:(){
-                                    removeItem(index);
+                                    _removeItem(index);
                                   },
                                   child: IconButton(onPressed: ()  =>  _removeItem(index),
                                     icon: Icon(Iconsax.trush_square),color: Colors.red,iconSize: 28, ),

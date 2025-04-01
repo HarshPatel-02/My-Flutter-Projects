@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/screens/Favourite.dart';
 import 'package:task1/screens/userprofile.dart';
 
+import '../dataBase/DataBaseHelperClass.dart';
 import '../main.dart';
 import 'Add_To_Cart.dart';
 import 'Login.dart';
@@ -23,6 +24,7 @@ class _ProfileState extends State<Profile> {
   String _userName = "Guest";
   String? _profileImage;
 
+  final DataBaseHelper dbHelper = DataBaseHelper.instance;
 
   @override
   void initState() {
@@ -183,15 +185,18 @@ class _ProfileState extends State<Profile> {
                     children: [
                       InkWell(
     onTap: () async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
+      await dbHelper.clearFav();
+      await dbHelper.clearCart();
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const Login()),
               (route)=>false );
     },
                           child: Icon(Icons.exit_to_app_sharp,size: 32,color: Colors.red.shade600,)),
                       TextButton(onPressed: () async {
-                        SharedPreferences prefs = await SharedPreferences.getInstance();
-                        await prefs.clear();
+                        // SharedPreferences prefs = await SharedPreferences.getInstance();
+                        // await prefs.clear();
+                        await dbHelper.clearFav();
+                        await dbHelper.clearCart();
                         Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => const Login()),
                             (route)=>false );
                       }, child: Text('Logout',style: TextStyle(fontSize: 25,color: Colors.red.shade600,fontWeight: FontWeight.w600),)

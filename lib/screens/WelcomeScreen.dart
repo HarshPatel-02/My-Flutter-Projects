@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:task1/WelcomeScreen/Welcome_Screen_1.dart';
 import 'package:task1/WelcomeScreen/Welcome_Screen_2.dart';
@@ -52,7 +53,9 @@ class _WelcomescreenState extends State<Welcomescreen> {
               Container(
                 alignment: Alignment(0,0.6),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async{
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('hasSeenWelcome', true);
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return Login();
                 },));
@@ -92,8 +95,14 @@ class _WelcomescreenState extends State<Welcomescreen> {
               Container(
                 alignment: Alignment(0,0.8),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async{
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('hasSeenWelcome', true);
                     _controller.jumpToPage(2);
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) {
+                          return Login();
+                        }));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.brown.shade100,

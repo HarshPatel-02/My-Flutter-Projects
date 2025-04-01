@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:task1/main.dart';
+import '../dataBase/DataBaseHelperClass.dart';
 import '../models/ProductModel.dart';
 import 'Product_details.dart';
 
@@ -20,20 +21,39 @@ class Favourite extends StatefulWidget {
 }
 
 class _FavouriteState extends State<Favourite> {
-
+  final DataBaseHelper dbHelper = DataBaseHelper.instance;
 
   @override
   void initState() {
     super.initState();
-    favoriteProducts = widget.favoriteProducts;
+    // favoriteProducts = widget.favoriteProducts;
+    _loadFavItems();
   }
 
-  void _removeFromFavorites(ProductItem product) {
-    setState(() {
-      favoriteProducts.remove(product);
-    });
-    widget.onRemoveFromFavorites(product); // Call the callback function
+  Future<void> _loadFavItems() async {
+    try {
+      favoriteProducts = await dbHelper.getFavItems();
+      setState(() {});
+    } catch (e) {
+      print("Error loading cart items: $e");
+    }
   }
+
+  Future<void> _removeItem(int index) async {
+    try {
+      await dbHelper.removeFromFav(favoriteProducts[index].id);
+      await _loadFavItems(); // Refresh the list
+    } catch (e) {
+      print("Error removing item: $e");
+    }
+  }
+
+  // void _removeFromFavorites(ProductItem product) {
+  //   setState(() {
+  //     favoriteProducts.remove(product);
+  //   });
+  //   widget.onRemoveFromFavorites(product); // Call the callback function
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +148,7 @@ class _FavouriteState extends State<Favourite> {
                     ),
                     IconButton(
                       onPressed: () {
-                        _removeFromFavorites(product);
+                        _removeItem(index);
                       },
                       icon: Icon(
                         Icons.delete,

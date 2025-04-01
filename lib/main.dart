@@ -34,6 +34,29 @@ List<ProductItem> cartItems=[];
 List<ProductItem> favoriteProducts = [];
 
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool hasSeenWelcome = prefs.getBool('hasSeenWelcome') ?? false;
+
+  runApp(MyApp(hasSeenWelcome: hasSeenWelcome));
+}
+
+class MyApp extends StatelessWidget {
+  final bool hasSeenWelcome;
+
+  const MyApp({super.key, required this.hasSeenWelcome});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: hasSeenWelcome ? SplashScreen() : Welcomescreen(),
+    );
+  }
+}
+/*
+
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp();
@@ -41,29 +64,34 @@ void main()async {
   // await dbHelper.printAllTables();
  // await dbHelper.deleteDatabaseFile();
   await dbHelper.printTableColumns('CART');
+  await dbHelper.printTableColumns('FAVOURITE');
   await SharedPreferences.getInstance();
-  runApp(const MyApp());
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool? hasSeenWelcome = prefs.getBool('hasSeenWelcome') ?? false;
+  runApp( MyApp( hasSeenWelcome:hasSeenWelcome ,));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool hasSeenWelcome;
+
+   MyApp({super.key,required this.hasSeenWelcome});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+
       debugShowCheckedModeBanner: false,   //debugge nu lable off krva
 
-      home: const MyHomePage(title: 'Task 1'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, });
 
-  final String title;
+
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -88,9 +116,9 @@ class _MyHomePageState extends State<MyHomePage> {
       // ),
       // home: Home(),
       // home:Profile(),
-      //   home: Login(),
+      // home: Login(),
     // home: SignUp(),
-    home: BottomNavigationbar(),
+    // home: BottomNavigationbar(),
     //   home: Bedroom(),
     //   home: Dinning(),
 
@@ -101,7 +129,9 @@ class _MyHomePageState extends State<MyHomePage> {
       // home: Search(),
     // home: Categorys(),
     //   home: SplashScreen(),
-    //   home: UsersScreen(),
+      home: hasSeenWelcome ? SplashScreen() : Welcomescreen(),
+
+      //   home: UsersScreen(),
       // home: Userapp(),
       // home: AddToCart(),
       // home: Profile(),
@@ -114,3 +144,4 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+*/

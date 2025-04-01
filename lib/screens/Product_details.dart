@@ -43,6 +43,21 @@ class _ProductDetailsState extends State<ProductDetails> {
     product.qty=1;
 
     super.initState();
+    loadFavorites();
+  }
+
+  void loadFavorites() async {
+    favoriteProducts = await dbHelper.getFavItems(); // Fetch from SQLite
+    setState(() {}); // Update UI
+  }
+
+  Future<void> _removeItem(int index) async {
+    try {
+      await dbHelper.removeFromFav(favoriteProducts[index].id);
+       // Refresh the list
+    } catch (e) {
+      print("Error removing item: $e");
+    }
   }
 
 
@@ -189,24 +204,29 @@ class _ProductDetailsState extends State<ProductDetails> {
                           setState(() {});
                         },
                         child: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              if (!favoriteProducts.contains(product)) {
-                                favoriteProducts.add(product);
-                                Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
-                              } else {
-                                favoriteProducts.remove(product);
-                                Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
-                              }
-                            });
+                          onPressed: () async {
+                            bool isFavorite = favoriteProducts.any((item) => item.id == product.id);
+
+                            if (isFavorite) {
+                              await dbHelper.removeFromFav(product.id);
+                              favoriteProducts.removeWhere((item) => item.id == product.id);
+                              Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
+                            } else {
+                              await dbHelper.addToFav(product);
+                              favoriteProducts.add(product);
+                              Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
+                            }
+
+                            setState(() {});
                           },
                           icon: Icon(
-                            favoriteProducts.contains(product) ? Icons.favorite : Icons.favorite_border,
-                            color: favoriteProducts.contains(product) ? Colors.red : Colors.brown,
+                            favoriteProducts.any((item) => item.id == product.id) ? Icons.favorite : Icons.favorite_border,
+                            color: favoriteProducts.any((item) => item.id == product.id) ? Colors.red : Colors.brown,
                           ),
                           tooltip: 'Favorite',
                           iconSize: 24,
-                        ),
+                        )
+
 
                       ),
 
@@ -248,7 +268,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               Center(
                 child: ElevatedButton(
                     onPressed: () async{
-                      await dbHelper.addToCart(product);
+                      // await dbHelper.addToCart(product);
                       // _valueSetter(globalProductList[index]);
                       await Navigator.push(
                         context,
@@ -276,9 +296,11 @@ class _ProductDetailsState extends State<ProductDetails> {
 
               Center(
                 child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async{
                       if (!cartItems.any((item) => item.id == product.id)) {
-                        cartItems.add(product);
+                        // cartItems.add(product);
+                        await dbHelper.addToCart(product);
+
                       }
                       print(cartItems.length.toString()+'abc');
                       Fluttertoast.showToast(
