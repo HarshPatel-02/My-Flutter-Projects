@@ -9,6 +9,7 @@
 
 class ProductItem {
   int id;
+  int? userId;
   String img;
   String category;
   String title;
@@ -19,6 +20,7 @@ class ProductItem {
 
   ProductItem({
     required this.id,
+    this.userId,
     required this.img,
     required this.title,
     required this.category,
@@ -31,6 +33,7 @@ class ProductItem {
   Map<String, dynamic> toMap() {
     return {
       'id': this.id,
+      'userId': userId,
       'img': this.img,
       'category': this.category,
       'title': this.title,
@@ -44,6 +47,7 @@ class ProductItem {
   factory ProductItem.fromMap(Map<String, dynamic> map) {
     return ProductItem(
       id: (map['id'] as int),
+      userId: map['userId'],
       img: map['img'] as String,
       category: map['category'] as String,
       title: map['title'] as String,

@@ -31,7 +31,8 @@ class _CategorysState extends State<Categorys> {
   }
 
   void loadFavorites() async {
-    favoriteProducts = await dbHelper.getFavItems(); // Fetch from SQLite
+    int userId = 1;
+    favoriteProducts = await dbHelper.getFavItems(userId); // Fetch from SQLite
     setState(() {}); // Update UI
   }
 
@@ -122,7 +123,8 @@ print('------------ Favourite List :$favoriteProducts');
                                     favoriteProducts.removeWhere((item) => item.id == product.id);
                                     Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
                                   } else {
-                                    await dbHelper.addToFav(product);
+                                    int userId = 1;
+                                    await dbHelper.addToFav(product,userId);
                                     favoriteProducts.add(product);
                                     Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
                                   }

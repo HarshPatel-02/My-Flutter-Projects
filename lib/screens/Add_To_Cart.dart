@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
+
 import 'package:iconsax/iconsax.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/ProductModel.dart';
@@ -57,7 +57,8 @@ class _AddToCartState extends State<AddToCart> {
 
   Future<void> _loadCartItems() async {
     try {
-      cartItems = await dbHelper.getCartItems();
+      int userId = 1;
+      cartItems = await dbHelper.getCartItems(userId);
       _calculateTotal();
       setState(() {});
     } catch (e) {

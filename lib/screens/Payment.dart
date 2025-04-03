@@ -72,7 +72,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
   Future<void> _loadCartItems() async {
     try {
-      cartItems = await dbHelper.getCartItems();
+      int userId = 1;
+      cartItems = await dbHelper.getCartItems(userId);
       _calculateTotal();
       setState(() {});
     } catch (e) {

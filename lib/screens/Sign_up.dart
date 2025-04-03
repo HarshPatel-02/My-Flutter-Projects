@@ -18,13 +18,14 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   final _formkey= GlobalKey<FormState>();
+  final DataBaseHelper dbHelper = DataBaseHelper.instance;
 
-  DataBaseHelper? dbHelper;
 
   @override
   void initState() {
     super.initState();
-    dbHelper = DataBaseHelper.instance;
+
+    dbHelper.printTableData();
   }
   bool _obscureText = true;
 

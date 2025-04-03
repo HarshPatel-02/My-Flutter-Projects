@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/screens/getData.dart';
@@ -126,11 +127,11 @@ class _userprofileState extends State<userprofile> {
                   )
                 ],
               ),
-              CustomTextfield(hintText: 'FirstName', controller: firstnameController),
-              CustomTextfield(hintText: 'Last Name', controller: lastnameController),
-              CustomTextfield(hintText: 'Email', controller: emailController),
-              CustomTextfield(hintText: 'date Of Birth', controller: dateofbirthController),
-              CustomTextfield(hintText: 'Phone Number', controller: phonenoController),
+              CustomTextfield(hintText: 'FirstName', controller: firstnameController,suffixIcon: Icon(Iconsax.user),),
+              CustomTextfield(hintText: 'Last Name', controller: lastnameController,suffixIcon: Icon(Iconsax.user),),
+              CustomTextfield(hintText: 'Email', controller: emailController,suffixIcon: Icon(Icons.email),),
+              CustomTextfield(hintText: 'date Of Birth', controller: dateofbirthController,suffixIcon: Icon(Iconsax.calendar),),
+              CustomTextfield(hintText: 'Phone Number', controller: phonenoController,suffixIcon: Icon(Icons.phone),),
 
               Center(
                 child: Container(

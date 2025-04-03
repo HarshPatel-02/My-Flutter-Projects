@@ -39,6 +39,13 @@ void main() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool hasSeenWelcome = prefs.getBool('hasSeenWelcome') ?? false;
 
+  DataBaseHelper dbHelper = DataBaseHelper.instance;
+  // await dbHelper.printAllTables();
+  // await dbHelper.deleteDatabaseFile();
+  await dbHelper.printTableData();
+  // await dbHelper.printTableColumns('CART');
+  // await dbHelper.printTableColumns('FAVOURITE');
+
   runApp(MyApp(hasSeenWelcome: hasSeenWelcome));
 }
 

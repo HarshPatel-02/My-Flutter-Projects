@@ -16,8 +16,10 @@ android {
     }
 
     dependencies {
-        implementation 'com.stripe:stripe-android:20.44.0'  // Example Stripe version
-        // Add other dependencies if needed
+        implementation 'com.razorpay:checkout:1.6.26'
+
+        implementation 'androidx.annotation:annotation:1.7.0'
+        implementation 'com.google.android.material:material:1.9.0'
     }
 
 
@@ -42,6 +44,7 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

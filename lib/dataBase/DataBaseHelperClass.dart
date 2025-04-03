@@ -2,6 +2,7 @@ import 'dart:io' as io;
 
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:task1/models/UserModel.dart';
 
@@ -18,6 +19,7 @@ class DataBaseHelper {
   // cartitem table
   static const String TABLE_CART = 'CART';
 
+  static const String UC_ID = 'uc_id';
   static const String C_ID = 'id';
   static const String C_TITLE = 'title';
   static const String C_DESCRIPTION = 'description';
@@ -30,6 +32,7 @@ class DataBaseHelper {
   // fAV table
   static const String TABLE_FAVOURITE = 'FAVOURITE';
 
+  static const String UF_ID = 'uf_id';
   static const String F_ID = 'id';
   static const String F_TITLE = 'title';
   static const String F_DESCRIPTION = 'description';
@@ -66,6 +69,7 @@ class DataBaseHelper {
 
     await db.execute('''
       CREATE TABLE IF NOT EXISTS $TABLE_CART (
+         $UC_ID INTEGER, 
         $C_ID INTEGER PRIMARY KEY,
         $C_TITLE TEXT,
         $C_DESCRIPTION TEXT,
@@ -79,6 +83,7 @@ class DataBaseHelper {
 
     await db.execute('''
       CREATE TABLE IF NOT EXISTS $TABLE_FAVOURITE (
+        $UF_ID INTEGER,
         $F_ID INTEGER PRIMARY KEY,
         $F_TITLE TEXT,
         $F_DESCRIPTION TEXT,
@@ -92,16 +97,23 @@ class DataBaseHelper {
 
     print("Database tables created successfully");
     print("Table Created: $TABLE_USER");
+
+
   }
 
   Future<int?> insert(UserModel user) async {
     var dbClient = await db;
     try {
-      int id = await dbClient!.insert(TABLE_USER, user.toMap());
+      // int id = await dbClient!.insert(TABLE_USER, user.toMap());
+      return await dbClient!.insert(TABLE_USER, user.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace);
+      // ----- user id stored use  id
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
+      // await prefs.setInt('user_id', id);
 
-      print(
-          "Inserted User - ID: $id, Email: ${user.email}, Password: ${user.password}");
-      return id;
+      // print(
+      //     "Inserted User - ID: $id, Email: ${user.email}, Password: ${user.password}");
+      // return id;
     } catch (e) {
       print("Error inserting user: ${e.toString()}");
       return null;
@@ -143,11 +155,16 @@ class DataBaseHelper {
 
     List<Map<String, dynamic>> maps = await database.query(
       TABLE_USER,
+      // columns: ['id'],
       where: '$C_EMAIL = ?',
       whereArgs: [email],
     );
 
     if (maps.isNotEmpty) {
+      UserModel user = UserModel.fromMap(maps.first);
+
+      // 🔹 Save user ID in SharedPreferences
+      await saveUserId(user.id!);
       print("User Found: ${maps.first}");
       return UserModel.fromMap(maps.first);
     } else {
@@ -169,6 +186,20 @@ class DataBaseHelper {
     }
   }
 
+  Future<void> printTableData()async{
+    final database = await db;
+    List<Map<String, dynamic>> users = await database!.query(TABLE_USER);
+
+    // Print data
+    for (var user in users) {
+      print('----ID: ${user['id']}, Email: ${user['C_EMAIL']}, Password: ${user['C_PASSWORD']}');
+    }
+  }
+
+
+
+
+
 //  database remove
 // Future<void> deleteDatabaseFile() async {
 //   io.Directory documentDirectory = await getApplicationDocumentsDirectory();
@@ -178,12 +209,26 @@ class DataBaseHelper {
 // }
 
   // Cart operations
-  Future<int> addToCart(ProductItem product) async {
+  Future<int> addToCart(ProductItem product,int userId) async {
     try {
       final db = await this.db;
+
+      // Retrieve logged-in user's ID
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      int? userId = prefs.getInt('user_id');
       return await db!.insert(
         TABLE_CART,
-        product.toMap(),
+        {
+          UC_ID: userId,  // 🔹 Now storing user ID
+          C_TITLE: product.title,
+          C_DESCRIPTION: product.description,
+          C_PRICE: product.price,
+          C_CATEGORY: product.category,
+          C_RATING: product.rating,
+          C_QTY: product.qty,
+          C_IMG: product.img,
+        },
+        // product.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } catch (e) {
@@ -192,10 +237,19 @@ class DataBaseHelper {
     }
   }
 
-  Future<List<ProductItem>> getCartItems() async {
+  Future<List<ProductItem>> getCartItems(int userId) async {
     try {
       final db = await this.db;
-      final List<Map<String, dynamic>> maps = await db!.query(TABLE_CART);
+
+      // Retrieve logged-in user's ID
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      int? userId = prefs.getInt('user_id');
+      final List<Map<String, dynamic>> maps = await db!.query(
+          TABLE_CART,
+        where: '$UC_ID  = ?',  // 🔹 Fetch only this user's cart items
+        whereArgs: [userId],
+
+      );
       return List.generate(maps.length, (i) => ProductItem.fromMap(maps[i]));
     } catch (e) {
       print("Error getting cart items: $e");
@@ -242,25 +296,99 @@ class DataBaseHelper {
     }
   }
 
+  // save user data
+  Future<void> saveUserId(int userId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('user_id', userId);
+  }
+
+// removw data
+  Future<void> logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_id');
+  }
+
+
+
 // Fav operations
-  Future<int> addToFav(ProductItem product) async {
+//   Future<int> addToFav(ProductItem product,int userId) async {
+//     try {
+//       final db = await this.db;
+//       SharedPreferences prefs = await SharedPreferences.getInstance();
+//       int? userId = prefs.getInt('user_id');
+//       return await db!.insert(
+//         TABLE_FAVOURITE,
+//         {
+//           UF_ID: userId,  // 🔹 Now storing user ID
+//           F_TITLE: product.title,
+//           F_DESCRIPTION: product.description,
+//           F_PRICE: product.price,
+//           F_CATEGORY: product.category,
+//           F_RATING: product.rating,
+//           F_QTY: product.qty,
+//           F_IMG: product.img,
+//         },
+//         // product.toMap(),
+//         conflictAlgorithm: ConflictAlgorithm.replace,
+//       );
+//     } catch (e) {
+//       print("Error adding to cart: $e");
+//       return 0;
+//     }
+//   }
+  Future<int> addToFav(ProductItem product, int userId) async {
     try {
       final db = await this.db;
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      int? userId = prefs.getInt('user_id');
+
+      // Check if the product is already in favorites
+      final existingFav = await db!.query(
+        TABLE_FAVOURITE,
+        where: '$F_ID = ? AND $UF_ID = ?',
+        whereArgs: [product.id, userId],
+      );
+
+      if (existingFav.isNotEmpty) {
+        // Product already exists in favorites, return without adding
+        print("Product already in favorites");
+        return 0;
+      }
+
+      // Insert the product if it doesn't exist
       return await db!.insert(
         TABLE_FAVOURITE,
-        product.toMap(),
+        {
+          UF_ID: userId,
+          F_ID: product.id, // Ensure the ID is explicitly set
+          F_TITLE: product.title,
+          F_DESCRIPTION: product.description,
+          F_PRICE: product.price,
+          F_CATEGORY: product.category,
+          F_RATING: product.rating,
+          F_QTY: product.qty,
+          F_IMG: product.img,
+        },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } catch (e) {
-      print("Error adding to cart: $e");
+      print("Error adding to favorites: $e");
       return 0;
     }
   }
 
-  Future<List<ProductItem>> getFavItems() async {
+  Future<List<ProductItem>> getFavItems(int userId) async {
     try {
       final db = await this.db;
-      final List<Map<String, dynamic>> maps = await db!.query(TABLE_FAVOURITE);
+      // Retrieve logged-in user's ID
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      int? userId = prefs.getInt('user_id');
+      final List<Map<String, dynamic>> maps = await db!.query(
+          TABLE_FAVOURITE,
+        where: '$UF_ID  = ?',
+        whereArgs: [userId],
+
+      );
       return List.generate(maps.length, (i) => ProductItem.fromMap(maps[i]));
     } catch (e) {
       print("Error getting cart items: $e");
@@ -283,16 +411,31 @@ class DataBaseHelper {
     }
   }
 
+  // Future<int> removeFromFav(int productId) async {
+  //   try {
+  //     final db = await this.db;
+  //     return await db!.delete(
+  //       TABLE_FAVOURITE,
+  //       where: '$F_ID = ?',
+  //       whereArgs: [productId],
+  //     );
+  //   } catch (e) {
+  //     print("Error removing from cart: $e");
+  //     return 0;
+  //   }
+  // }
   Future<int> removeFromFav(int productId) async {
     try {
       final db = await this.db;
-      return await db!.delete(
+      int result = await db!.delete(
         TABLE_FAVOURITE,
         where: '$F_ID = ?',
         whereArgs: [productId],
       );
+      print("Removed $result items from favorites with ID: $productId");
+      return result;
     } catch (e) {
-      print("Error removing from cart: $e");
+      print("Error removing from favorites: $e");
       return 0;
     }
   }
@@ -301,7 +444,7 @@ class DataBaseHelper {
     try {
       final db = await this.db;
       return await db!.delete(TABLE_FAVOURITE);
-    } catch (e) {
+     } catch (e) {
       print("Error clearing cart: $e");
       return 0;
     }

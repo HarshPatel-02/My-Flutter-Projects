@@ -32,7 +32,8 @@ class _FavouriteState extends State<Favourite> {
 
   Future<void> _loadFavItems() async {
     try {
-      favoriteProducts = await dbHelper.getFavItems();
+      int userId = 1;
+      favoriteProducts = await dbHelper.getFavItems(userId);
       setState(() {});
     } catch (e) {
       print("Error loading cart items: $e");
@@ -42,7 +43,9 @@ class _FavouriteState extends State<Favourite> {
   Future<void> _removeItem(int index) async {
     try {
       await dbHelper.removeFromFav(favoriteProducts[index].id);
-      await _loadFavItems(); // Refresh the list
+      await _loadFavItems();
+      setState(() {
+      });// Refresh the list
     } catch (e) {
       print("Error removing item: $e");
     }
@@ -147,7 +150,7 @@ class _FavouriteState extends State<Favourite> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {
+                      onPressed: () async{
                         _removeItem(index);
                       },
                       icon: Icon(

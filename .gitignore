@@ -30,6 +30,7 @@ android/app/.cxx
 .flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
+pubspec.lock
 .pub/
 /build/
 

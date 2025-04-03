@@ -30,7 +30,8 @@ class _HomeState extends State<Home> {
   }
   Future<void> _loadFavItems() async {
     try {
-      favoriteProducts = await dbHelper.getFavItems();
+      int userId = 1;
+      favoriteProducts = await dbHelper.getFavItems(userId);
       setState(() {});
     } catch (e) {
       print("Error loading cart items: $e");
@@ -317,15 +318,18 @@ class _HomeState extends State<Home> {
 
                                       if (isFavorite) {
                                         await dbHelper.removeFromFav(product.id);
-                                        favoriteProducts.removeWhere((item) => item.id == product.id);
-                                        Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
+                                        setState(() {
+                                          favoriteProducts.removeWhere((item) => item.id == product.id);
+                                          Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
+                                        });
                                       } else {
-                                        await dbHelper.addToFav(product);
-                                        favoriteProducts.add(product);
-                                        Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
+                                        int userId = 1; // Replace with actual user ID logic
+                                        await dbHelper.addToFav(product, userId);
+                                        setState(() {
+                                          favoriteProducts.add(product);
+                                          Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
+                                        });
                                       }
-
-                                      setState(() {});
                                     },
                                     icon: Icon(
                                       favoriteProducts.any((item) => item.id == product.id) ? Icons.favorite : Icons.favorite_border,
@@ -333,8 +337,36 @@ class _HomeState extends State<Home> {
                                     ),
                                     tooltip: 'Favorite',
                                     iconSize: 24,
-                                  )
+                                  ),
                                 )
+                                // Positioned(
+                                //   top: 5,
+                                //   right: 5,
+                                //   child: IconButton.filledTonal(
+                                //     onPressed: () async {
+                                //       bool isFavorite = favoriteProducts.any((item) => item.id == product.id);
+                                //
+                                //       if (isFavorite) {
+                                //         await dbHelper.removeFromFav(product.id);
+                                //         favoriteProducts.removeWhere((item) => item.id == product.id);
+                                //         Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
+                                //       } else {
+                                //         int userId = 1;
+                                //         await dbHelper.addToFav(product,userId);
+                                //         favoriteProducts.add(product);
+                                //         Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
+                                //       }
+                                //
+                                //       setState(() {});
+                                //     },
+                                //     icon: Icon(
+                                //       favoriteProducts.any((item) => item.id == product.id) ? Icons.favorite : Icons.favorite_border,
+                                //       color: favoriteProducts.any((item) => item.id == product.id) ? Colors.red : Colors.brown,
+                                //     ),
+                                //     tooltip: 'Favorite',
+                                //     iconSize: 24,
+                                //   )
+                                // )
                               ],
                             ),
                             Text(
@@ -577,7 +609,8 @@ class _HomeState extends State<Home> {
                                           favoriteProducts.removeWhere((item) => item.id == product.id);
                                           Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
                                         } else {
-                                          await dbHelper.addToFav(product);
+                                          int userId = 1;
+                                          await dbHelper.addToFav(product,userId);
                                           favoriteProducts.add(product);
                                           Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
                                         }

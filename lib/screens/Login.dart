@@ -70,11 +70,13 @@ class _LoginState extends State<Login> {
 
 
         Fluttertoast.showToast(msg: 'Login Successful!');
+        await dbHelper.printTableData();
         print('User logged in: ${user.email}');
 
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => BottomNavigationbar()),
+          (route) => false,
         );
       } else {
         Fluttertoast.showToast(msg: 'Invalid Email or Password. Try again!');
