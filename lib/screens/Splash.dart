@@ -24,7 +24,14 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(Duration(seconds: 3), ()async{
       SharedPreferences prefs = await SharedPreferences.getInstance();
       bool hasSeenWelcome = prefs.getBool('hasSeenWelcome') ?? false;
-      if (hasSeenWelcome) {
+      bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+      if (isLoggedIn) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => BottomNavigationbar()),
+        );
+      }
+      else if (hasSeenWelcome) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => Login()),

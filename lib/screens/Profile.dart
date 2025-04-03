@@ -32,10 +32,10 @@ class _ProfileState extends State<Profile> {
     _loadUserName(); // Load username when screen opens
   }
   void _loadUserName() async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _userName = sp.getString('firstname') ?? "Guest";  // Fetch firstname instead of userEmail
-      _profileImage = sp.getString('profileImage');
+      _userName = prefs.getString('firstname') ?? "Guest";  // Fetch firstname instead of userEmail
+      _profileImage = prefs.getString('profileImage');
     });
     setState(() {
 

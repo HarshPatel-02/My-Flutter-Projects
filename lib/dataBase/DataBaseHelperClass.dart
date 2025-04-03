@@ -1,10 +1,12 @@
 import 'dart:io' as io;
 
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:task1/models/UserModel.dart';
+import 'package:task1/screens/Bottom_navigationBar.dart';
 
 import '../models/ProductModel.dart';
 
@@ -41,6 +43,19 @@ class DataBaseHelper {
   static const String F_IMG = 'img';
   static const String F_CATEGORY = 'category';
   static const String F_RATING = 'rating';
+
+
+  // New table for user profile
+  static const String TABLE_PROFILE = 'USER_PROFILE';
+
+  static const String P_USER_ID = 'user_id'; // Foreign key to USERDATA
+  static const String P_FIRSTNAME = 'firstname';
+  static const String P_LASTNAME = 'lastname';
+  static const String P_EMAIL = 'email';
+  static const String P_DOB = 'dateofbirth';
+  static const String P_PHONE = 'phoneno';
+  static const String P_GENDER = 'gender';
+  static const String P_IMAGE = 'profile_image'; // Base64 string for image
 
   static final DataBaseHelper instance = DataBaseHelper._internal();
 
@@ -93,6 +108,20 @@ class DataBaseHelper {
         $F_QTY INTEGER DEFAULT 1,
         $F_IMG String
       )
+    ''');
+
+    await db.execute(''' 
+     CREATE TABLE IF NOT EXISTS $TABLE_PROFILE ( 
+     $P_USER_ID INTEGER PRIMARY KEY,
+        $P_FIRSTNAME TEXT,
+        $P_LASTNAME TEXT,
+        $P_EMAIL TEXT,
+        $P_DOB TEXT,
+        $P_PHONE TEXT,
+        $P_GENDER TEXT,
+        $P_IMAGE TEXT,
+        FOREIGN KEY ($P_USER_ID) REFERENCES $TABLE_USER(id)
+     )
     ''');
 
     print("Database tables created successfully");
@@ -305,9 +334,9 @@ class DataBaseHelper {
 // removw data
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('user_id');
+    // await prefs.remove('user_id');
+    await prefs.setBool('isLoggedIn', false); // is stored user in remove in sp
   }
-
 
 
 // Fav operations
@@ -356,7 +385,7 @@ class DataBaseHelper {
       }
 
       // Insert the product if it doesn't exist
-      return await db!.insert(
+      return await db.insert(
         TABLE_FAVOURITE,
         {
           UF_ID: userId,
@@ -449,4 +478,27 @@ class DataBaseHelper {
       return 0;
     }
   }
+
+  // user profile data save or get
+  Future<int> saveUserProfile(int userId, Map<String, dynamic> profileData) async {
+    final dbClient = await db;
+    return await dbClient!.insert(
+      TABLE_PROFILE,
+      {P_USER_ID: userId, ...profileData},
+      conflictAlgorithm: ConflictAlgorithm.replace, // Replace if exists
+    );
+  }
+
+  // Method to load user profile
+  Future<Map<String, dynamic>?> getUserProfile(int userId) async {
+    final dbClient = await db;
+    final result = await dbClient!.query(
+      TABLE_PROFILE,
+      where: '$P_USER_ID = ?',
+      whereArgs: [userId],
+    );
+    return result.isNotEmpty ? result.first : null;
+  }
+
+
 }

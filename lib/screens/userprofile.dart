@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/screens/getData.dart';
 import 'package:task1/ui_widgets/custom_textfield.dart';
 
+import '../dataBase/DataBaseHelperClass.dart';
+
 
 class userprofile extends StatefulWidget {
   const userprofile({super.key});
@@ -23,6 +25,7 @@ class _userprofileState extends State<userprofile> {
   File? _image;
   String? base64Image;  // For storing the image string
 
+  final DataBaseHelper dbHelper = DataBaseHelper.instance;
   String dropdownValue = 'Male';
 
   TextEditingController firstnameController = TextEditingController();
@@ -60,21 +63,77 @@ class _userprofileState extends State<userprofile> {
 
 
 
-  // Method to load SharedPreferences data
+  // Method to load sqlite data
   Future<void> loadData() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    setState(() {
-      firstnameController.text = sp.getString("firstname") ?? '';
-      lastnameController.text = sp.getString("lastname") ?? '';
-      emailController.text = sp.getString("email") ?? '';
-      dateofbirthController.text = sp.getString("dateofbirth") ?? '';
-      phonenoController.text = sp.getString("mobileno") ?? '';
-      dropdownValue = sp.getString("gender") ?? 'Male';
+    int? userId = sp.getInt('user_id'); // Get user ID from login
+    if (userId == null) {
+      print('No user ID found in SharedPreferences');
+      return;
+    }
 
-      base64Image = sp.getString("profileImage");
-    });
+    try {
+      final profile = await dbHelper.getUserProfile(userId);
+      if (profile != null) {
+        setState(() {
+          firstnameController.text = profile[DataBaseHelper.P_FIRSTNAME] ?? '';
+          lastnameController.text = profile[DataBaseHelper.P_LASTNAME] ?? '';
+          emailController.text = profile[DataBaseHelper.P_EMAIL] ?? '';
+          dateofbirthController.text = profile[DataBaseHelper.P_DOB] ?? '';
+          phonenoController.text = profile[DataBaseHelper.P_PHONE] ?? '';
+          dropdownValue = profile[DataBaseHelper.P_GENDER] ?? 'Male';
+          base64Image = profile[DataBaseHelper.P_IMAGE];
+        });
+        print('Profile loaded: $profile');
+      } else {
+        print('No profile data found for user ID: $userId');
+      }
+    } catch (e) {
+      print('Error loading profile: $e');
+    }
   }
 
+  Future<void> saveData() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    int? userId = sp.getInt('user_id');
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User not logged in')),
+      );
+      return;
+    }
+
+    Map<String, dynamic> profileData = {
+      DataBaseHelper.P_FIRSTNAME: firstnameController.text,
+      DataBaseHelper.P_LASTNAME: lastnameController.text,
+      DataBaseHelper.P_EMAIL: emailController.text,
+      DataBaseHelper.P_DOB: dateofbirthController.text,
+      DataBaseHelper.P_PHONE: phonenoController.text,
+      DataBaseHelper.P_GENDER: dropdownValue,
+      DataBaseHelper.P_IMAGE: base64Image,
+    };
+
+    try {
+      await dbHelper.saveUserProfile(userId, profileData);
+      print('Profile saved: $profileData');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Data Saved Successfully',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown.shade700),
+          ),
+          backgroundColor: Colors.brown.shade100,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      await loadData(); // Reload data to ensure UI reflects the saved values
+    } catch (e) {
+      print('Error saving profile: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving data: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -174,13 +233,7 @@ class _userprofileState extends State<userprofile> {
 
               ElevatedButton(
                 onPressed: () async {
-                  SharedPreferences sp = await SharedPreferences.getInstance();
-                  sp.setString("firstname", firstnameController.text);
-                  sp.setString("lastname", lastnameController.text);
-                  sp.setString("email", emailController.text);
-                  sp.setString("dateofbirth", dateofbirthController.text);
-                  sp.setString("mobileno", phonenoController.text);
-                  sp.setString("gender", dropdownValue);
+                saveData();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Data Saved Successfully',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.brown.shade700),),

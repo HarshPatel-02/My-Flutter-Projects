@@ -28,7 +28,7 @@ class _LoginState extends State<Login> {
   bool _obscureText = true;
 
 
-  void login() async {
+  Future<void> login() async {
     String uemail = Email.text.trim();
     String upassword = Password.text.trim();
     final bool isValid = EmailValidator.validate(uemail);
@@ -67,6 +67,7 @@ class _LoginState extends State<Login> {
         // Compare with input password
         SharedPreferences sp = await SharedPreferences.getInstance();
         await sp.setString('userEmail', user.email?? "Unknown");
+        await sp.setBool('isLoggedIn', true);
 
 
         Fluttertoast.showToast(msg: 'Login Successful!');
