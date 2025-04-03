@@ -31,17 +31,31 @@ class _ProfileState extends State<Profile> {
     super.initState();
     _loadUserName(); // Load username when screen opens
   }
-  void _loadUserName() async {
+  Future<void> _loadUserName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userName = prefs.getString('firstname') ?? "Guest";  // Fetch firstname instead of userEmail
-      _profileImage = prefs.getString('profileImage');
-    });
-    setState(() {
+    int? userId = prefs.getInt('user_id'); // Get the logged-in user's ID
 
-    });
+    if (userId != null) {
+      try {
+        final profile = await dbHelper.getUserProfile(userId);
+        setState(() {
+          _userName = profile != null && profile[DataBaseHelper.P_FIRSTNAME] != null
+              ? profile[DataBaseHelper.P_FIRSTNAME]
+              : "Guest"; // Use firstname from profile or "Guest"
+          _profileImage = profile != null ? profile[DataBaseHelper.P_IMAGE] : null;
+        });
+      } catch (e) {
+        print('Error loading user profile: $e');
+        setState(() {
+          _userName = "Guest"; // Fallback in case of error
+        });
+      }
+    } else {
+      setState(() {
+        _userName = "Guest"; // No user ID, so default to "Guest"
+      });
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
