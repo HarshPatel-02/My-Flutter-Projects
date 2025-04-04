@@ -35,7 +35,7 @@ List<ProductItem> favoriteProducts = [];
 List<ProductItem> orderItems=[];
 
 
-
+var myCat=null;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();

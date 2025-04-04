@@ -25,6 +25,9 @@ class _CategorysState extends State<Categorys> {
   @override
   void initState() {
     selectedCategory = widget.category;
+    if(myCat!=null){
+      selectedCategory= myCat;
+    }
     // TODO: implement initState
     super.initState();
     loadFavorites();

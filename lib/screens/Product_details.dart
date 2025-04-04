@@ -62,23 +62,23 @@ class _ProductDetailsState extends State<ProductDetails> {
   }
 
 
-  List imageList = [
-    {
-      "id": 1,
-      "image_path":
-      'https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/EW_Beds_New/WEWB7260STAURUS_LS_1.jpg?tr=w-2732'
-    },
-    {
-      "id": 2,
-      "image_path":
-      'https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/EW_Beds_New/bed_WEWB7860STAURUSR2/bed_WEWB7860STAURUSR2_7.jpg?tr=w-2732'
-    },
-    {
-      "id": 3,
-      "image_path":
-      'https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/EW_Beds_New/bed_WEWB7860STAURUSR2/bed_WEWB7860STAURUSR2_6.jpg?tr=w-828'
-    },
-  ];
+  // List imageList = [
+  //   {
+  //     "id": 1,
+  //     "image_path":
+  //     'https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/EW_Beds_New/WEWB7260STAURUS_LS_1.jpg?tr=w-2732'
+  //   },
+  //   {
+  //     "id": 2,
+  //     "image_path":
+  //     'https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/EW_Beds_New/bed_WEWB7860STAURUSR2/bed_WEWB7860STAURUSR2_7.jpg?tr=w-2732'
+  //   },
+  //   {
+  //     "id": 3,
+  //     "image_path":
+  //     'https://ik.imagekit.io/2xkwa8s1i/img/npl_modified_images/EW_Beds_New/bed_WEWB7860STAURUSR2/bed_WEWB7860STAURUSR2_6.jpg?tr=w-828'
+  //   },
+  // ];
 
   final CarouselSliderController carouselController =
   CarouselSliderController();
@@ -110,11 +110,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                   height: 250,
                   width: double.infinity,
                   child: CarouselSlider(
-                      items: imageList
+                      items:
+                      product.img
                           .map(
                             (item) =>
                             Image.network(
-                              item['image_path'],
+                              item,
                               fit: BoxFit.contain,
                               width: double.infinity,
 
@@ -138,7 +139,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: imageList
+                children: product.img
                     .asMap()
                     .entries
                     .map((entry) {

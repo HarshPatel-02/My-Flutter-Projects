@@ -231,8 +231,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
+              onPressed: () async{
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                int? userId = prefs.getInt('user_id');
+                if (userId != null) {
+                  await dbHelper.saveCartToOrders(userId);
+                  await dbHelper.clearCart(userId); // Clear cart in database
+                  cartItems.clear(); // Clear local cart list
+                  _calculateTotal(); // Update total to reflect empty cart
+                  setState(() {}); // Update UI
+                }
+
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) =>
+                      BottomNavigationbar()), // Navigate to Home Screen
+                );
+                // Navigator.of(dialogContext).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Order placed successfully!")),
                 );

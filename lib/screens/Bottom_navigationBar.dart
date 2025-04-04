@@ -37,14 +37,16 @@ class _BottomNavigationbarState extends State<BottomNavigationbar> with SingleTi
   TabController? tabController;
 
   int myIndex = 0;
-  List<Widget> widgetList = [
-
-    Home(),
-    Categorys(category: 'All',),
-    AddToCart(),
-    Profile(),
-
-  ];
+  // List<Widget> widgetList = [
+  //
+  //   Home(tabChange:(v){
+  //     tabController!.animateTo(1);
+  //   }),
+  //   Categorys(category: 'All',),
+  //   AddToCart(),
+  //   Profile(),
+  //
+  // ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +59,19 @@ class _BottomNavigationbarState extends State<BottomNavigationbar> with SingleTi
       // ),
 
       body:TabBarView(
-        children: widgetList,
+        children:  [
+          Home(tabChange:(v){
+            tabController!.animateTo(v);
+            setState(() {
+              myIndex = v;
+
+            });
+          }),
+          Categorys(category: 'All',),
+          AddToCart(),
+          Profile(),
+
+        ],
         controller: tabController,
         physics: NeverScrollableScrollPhysics(),
         // index: myIndex,

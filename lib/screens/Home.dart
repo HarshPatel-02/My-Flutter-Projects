@@ -13,7 +13,8 @@ import '../models/dataProvider.dart';
 import 'Product_details.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  var tabChange;
+  Home({super.key, required this.tabChange});
 
   @override
   State<Home> createState() => _HomeState();
@@ -52,7 +53,15 @@ class _HomeState extends State<Home> {
   ];
   List<Category>? categoryList = [
     Category(
-        category: "BedRoom",
+        category: "Bedroom",
+        img:
+            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
+    Category(
+        category: "Bath",
+        img:
+            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
+    Category(
+        category: "Living",
         img:
             "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
     Category(
@@ -60,11 +69,7 @@ class _HomeState extends State<Home> {
         img:
             "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
     Category(
-        category: "LivingRoom",
-        img:
-            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
-    Category(
-        category: "Bath",
+        category: "Dining",
         img:
             "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
   ];
@@ -200,6 +205,8 @@ class _HomeState extends State<Home> {
 // change in
                   itemBuilder: (context, index) => GestureDetector(
                     onTap: () {
+                      widget.tabChange(1);
+                      myCat=categoryList![index].category.toString();
                       // Navigator.push(
                       //     context,
                       //     MaterialPageRoute (
