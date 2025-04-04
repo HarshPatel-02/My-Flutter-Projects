@@ -64,12 +64,34 @@ class _PaymentScreenState extends State<PaymentScreen> {
     super.dispose();
   }
 
-  void _loadUserName() async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    setState(() {
-      _userName = sp.getString('firstname') ?? "Guest";
-    });
+  Future<void> _loadUserName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('user_id'); // Get the logged-in user's ID
+
+    if (userId != null) {
+      try {
+        final profile = await dbHelper.getUserProfile(userId);
+        setState(() {
+          _userName = profile != null && profile[DataBaseHelper.P_FIRSTNAME] != null
+              ? profile[DataBaseHelper.P_FIRSTNAME]
+              : "Guest"; // Use firstname from profile or "Guest"
+
+        });
+      } catch (e) {
+        print('Error loading user profile: $e');
+        setState(() {
+          _userName = "Guest"; // Fallback in case of error
+        });
+      }
+    } else {
+      setState(() {
+        _userName = "Guest"; // No user ID, so default to "Guest"
+      });
+    }
   }
+
+
+
   Future<void> _loadCartItems() async {
     try {
       int userId = 1;
@@ -226,6 +248,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
 
   void handlePaymentErrorResponse(PaymentFailureResponse response) {
+
     showDialog(
       context: context,
       barrierDismissible: false, // Prevents closing by tapping outside
@@ -273,8 +296,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
     // showAlertDialog(context, "Payment Failed", "Code: ${response.code}\nDescription: ${response.message}\nMetadata:${response.error.toString()}");
   }
 
-  void handlePaymentSuccessResponse(PaymentSuccessResponse response) {
+  Future<void> handlePaymentSuccessResponse(PaymentSuccessResponse response) async {
+
     print("Payment Successful. Payment ID: ${response.paymentId}");
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('user_id');
+    if (userId != null) {
+      await dbHelper.saveCartToOrders(userId);
+      await dbHelper.clearCart(userId); // Clear cart in database
+      cartItems.clear(); // Clear local cart list
+      _calculateTotal(); // Update total to reflect empty cart
+      setState(() {}); // Update UI
+    }
+
+
     showDialog(
       context: context,
       barrierDismissible: false, // Prevents closing by tapping outside

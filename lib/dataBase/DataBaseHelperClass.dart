@@ -57,6 +57,13 @@ class DataBaseHelper {
   static const String P_GENDER = 'gender';
   static const String P_IMAGE = 'profile_image'; // Base64 string for image
 
+
+  //order table
+  static const String TABLE_ORDER = 'USER_ORDER';
+
+
+
+
   static final DataBaseHelper instance = DataBaseHelper._internal();
 
   DataBaseHelper._internal();
@@ -84,7 +91,7 @@ class DataBaseHelper {
 
     await db.execute('''
       CREATE TABLE IF NOT EXISTS $TABLE_CART (
-         $UC_ID INTEGER, 
+        $UC_ID INTEGER, 
         $C_ID INTEGER PRIMARY KEY,
         $C_TITLE TEXT,
         $C_DESCRIPTION TEXT,
@@ -124,9 +131,39 @@ class DataBaseHelper {
      )
     ''');
 
-    print("Database tables created successfully");
-    print("Table Created: $TABLE_USER");
 
+    await db.execute('''
+    CREATE TABLE IF NOT EXISTS $TABLE_ORDER (
+      O_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      product_id INTEGER,
+      title TEXT,
+      description TEXT,
+      price REAL,
+      category TEXT,
+      rating REAL,
+      quantity INTEGER DEFAULT 1,
+      image TEXT,
+      datetime TEXT,
+      FOREIGN KEY (user_id) REFERENCES $TABLE_USER(id)
+    )
+  ''');
+    // await db.execute('''
+    //     CREATE TABLE IF NOT EXISTS $TABLE_ORDER(
+    //     $O_ID INTEGER PRIMARY KEY,
+    //     $UC_ID INTEGER,
+    //     $C_ID INTEGER ,
+    //     $C_TITLE TEXT,
+    //     $C_DESCRIPTION TEXT,
+    //     $C_PRICE TEXT,
+    //     $C_CATEGORY TEXT,
+    //     $C_RATING TEXT,
+    //     $C_QTY INTEGER DEFAULT 1,
+    //     $C_IMG String
+    // )''');
+
+    print("----Database tables created successfully");
+    print("----Table Created: $TABLE_USER,$TABLE_CART, $TABLE_FAVOURITE, $TABLE_PROFILE, $TABLE_ORDER");
 
   }
 
@@ -267,6 +304,7 @@ class DataBaseHelper {
   }
 
   Future<List<ProductItem>> getCartItems(int userId) async {
+    print("");
     try {
       final db = await this.db;
 
@@ -285,6 +323,7 @@ class DataBaseHelper {
       return [];
     }
   }
+
 
   Future<int> updateCartItem(ProductItem product) async {
     try {
@@ -315,15 +354,18 @@ class DataBaseHelper {
     }
   }
 
-  Future<int> clearCart() async {
+  Future<int> clearCart(int userId) async {
     try {
       final db = await this.db;
-      return await db!.delete(TABLE_CART);
+      return await db!.delete(TABLE_CART,
+        where: '$UC_ID = ?', // UC_ID is the user ID column in TABLE_CART
+        whereArgs: [userId],);
     } catch (e) {
       print("Error clearing cart: $e");
       return 0;
     }
   }
+
 
   // save user data
   Future<void> saveUserId(int userId) async {
@@ -337,6 +379,72 @@ class DataBaseHelper {
     // await prefs.remove('user_id');
     await prefs.setBool('isLoggedIn', false); // is stored user in remove in sp
   }
+
+  // save payment is successful
+  Future<void> saveCartToOrders(int userId) async {
+    try {
+      final db = await this.db;
+      final cartItems = await getCartItems(userId);
+      String orderDate = DateTime.now().toIso8601String();   // store date or time in order
+      for (var item in cartItems) {
+        await db!.insert(
+          TABLE_ORDER,
+          {
+            'user_id': userId,
+            'product_id': item.id,
+            'title': item.title,
+            'description': item.description,
+            'price': num.parse(item.price), // Convert to numeric
+            'category': item.category,
+            'rating': num.parse(item.rating), // Convert to numeric
+            'quantity': item.qty,
+            'image': item.img,
+            'datetime':orderDate
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+      print("Cart items saved to orders for user ID: $userId");
+    } catch (e) {
+      print("Error saving cart to orders: $e");
+      rethrow;
+    }
+  }
+
+  Future<List<ProductItem>> getOrderItems(int userId) async {
+    print("----OrderItems");
+    try {
+      print("OrderFetchingFOR USER:::::$userId");
+      final db = await this.db;
+
+      // Retrieve logged-in user's ID
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
+      // int? userId = prefs.getInt('user_id');
+      final List<Map<String, dynamic>> maps = await db!.query(
+        TABLE_ORDER,
+        where: 'user_id  = ?',  // 🔹 Fetch only this user's cart items
+        whereArgs: [userId],
+      );
+      print("OrderFetching:${maps.first}");
+      // {O_ID: 1, user_id: 1, product_id: 1, title: Stylish Dresser, description: A contemporary dresser with multiple storage compartments, crafted from high-quality wood to keep your bedroom organized in style., price: 250.0, category: Bedroom, rating: 4.7, quantity: 1, image: https://i.pinimg.com/236x/67/01/6a/67016a346050ce6bf8e872b098a280ff.jpg}
+      return List.generate(maps.length, (i) => ProductItem(
+        id: maps[i]['O_ID'],
+        category: maps[i]['category'],
+        description: maps[i]['description'],
+        img: maps[i]['image'],
+        price:  maps[i]['price'].toString(),
+        rating:  maps[i]['rating'].toString(),
+        title: maps[i]['title'] ,
+        qty:  maps[i]['quantity'],
+        orderDate: maps[i]['datetime']
+
+      ));
+    } catch (e,s) {
+      print("Error getting ORDER items: $e ____ $s");
+      return [];
+    }
+  }
+
 
 
 // Fav operations

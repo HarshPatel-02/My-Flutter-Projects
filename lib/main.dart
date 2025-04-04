@@ -32,6 +32,8 @@ import 'screens/Bottom_navigationBar.dart';
 
 List<ProductItem> cartItems=[];
 List<ProductItem> favoriteProducts = [];
+List<ProductItem> orderItems=[];
+
 
 
 void main() async {

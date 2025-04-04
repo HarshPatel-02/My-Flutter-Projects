@@ -17,6 +17,7 @@ class ProductItem {
   String rating;
   String description;
   int qty;
+   dynamic orderDate;
 
   ProductItem({
     required this.id,
@@ -28,6 +29,7 @@ class ProductItem {
     required this.rating,
     required this.description,
     this.qty=1,
+    this.orderDate
   });
 
   Map<String, dynamic> toMap() {
@@ -55,7 +57,7 @@ class ProductItem {
       rating: map['rating'] as String,
       description: map['description'] as String,
       qty: map['qty'] ??1 as int,
-
+      orderDate: map['order_date'],
     );
   }
   @override

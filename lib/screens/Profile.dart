@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/screens/Favourite.dart';
+import 'package:task1/screens/Order_Screen.dart';
 import 'package:task1/screens/userprofile.dart';
 
 import '../dataBase/DataBaseHelperClass.dart';
@@ -184,6 +185,17 @@ class _ProfileState extends State<Profile> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (context) => AddToCart()),
+                                  );
+                                }, icon:Icon(Icons.shopping_cart_outlined),iconSize: 32,)
+                            ),
+                            Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.brown, width: 2),
+                                ),
+                                child: IconButton(onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => OrderScreen()),
                                   );
                                 }, icon:Icon(Icons.shopping_cart_outlined),iconSize: 32,)
                             ),

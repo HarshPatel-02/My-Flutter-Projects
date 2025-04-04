@@ -59,6 +59,9 @@ class _AddToCartState extends State<AddToCart> {
     try {
       int userId = 1;
       cartItems = await dbHelper.getCartItems(userId);
+
+      print('----cartScreen-${cartItems.length}');
+
       _calculateTotal();
       setState(() {});
     } catch (e) {
