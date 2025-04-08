@@ -25,9 +25,6 @@ class _CategorysState extends State<Categorys> {
   @override
   void initState() {
     selectedCategory = widget.category;
-    if(myCat!=null){
-      selectedCategory= myCat;
-    }
     // TODO: implement initState
     super.initState();
     loadFavorites();
@@ -110,7 +107,7 @@ print('------------ Favourite List :$favoriteProducts');
                               borderRadius: BorderRadius.circular(6),
                               child: Container(
 
-                                child: Image.network(product.img,
+                                child: Image.asset(product.img.first,
                                     fit: BoxFit.fill, height: 165, width: 300),
                               ),
                             ),

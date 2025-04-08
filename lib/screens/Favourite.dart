@@ -99,8 +99,8 @@ class _FavouriteState extends State<Favourite> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        product.img,
+                      child: Image.asset(
+                        product.img.first,
                         width: 100,
                         height: 100,
                         fit: BoxFit.cover,

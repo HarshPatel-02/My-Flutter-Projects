@@ -13,6 +13,14 @@ class OrderScreen extends StatefulWidget {
 class _OrderScreenState extends State<OrderScreen> {
 
   final DataBaseHelper dbHelper = DataBaseHelper.instance;
+  num delivary_charge=40;
+  num total=0;
+  num subtotal=0;
+  num tax_charge=50;
+
+
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -20,6 +28,13 @@ class _OrderScreenState extends State<OrderScreen> {
     _loadOrderItems();
     print("----Order");
   }
+
+  void _calculateTotal() {
+    subtotal = cartItems.fold(0, (sum, item) => sum + ((item.price) * item.qty));
+    total = subtotal + delivary_charge + tax_charge;
+  }
+
+
   Future<void> _loadOrderItems() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -27,6 +42,7 @@ class _OrderScreenState extends State<OrderScreen> {
       if(userId !=null) {
         orderItems = await dbHelper.getOrderItems(userId);
         print('----OrderScreen${orderItems.length}');
+        _calculateTotal;
         setState(() {});
       }else{
         print('no user id found');
@@ -56,7 +72,8 @@ class _OrderScreenState extends State<OrderScreen> {
               shrinkWrap: true,
               itemCount: orderItems.length,
               physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) => Container(
+              itemBuilder: (context, index) =>
+                  Container(
                 height: 180,
                 width: double.infinity,
                 padding: EdgeInsets.all(20),
@@ -71,8 +88,8 @@ class _OrderScreenState extends State<OrderScreen> {
                       children: [
                         Padding(
                           padding: EdgeInsets.all(10),
-                          child: Image.network(
-                            orderItems[index].img,
+                          child: Image.asset(
+                            orderItems[index].img.first,
                             width: 100,
                             fit: BoxFit.fill,
                             height: 120,
@@ -100,7 +117,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                 ),
                               ),
                               Text(
-                                'Price : \$${orderItems[index].price}',
+                                'Price : \$${orderItems[index].price*orderItems[index].qty}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,

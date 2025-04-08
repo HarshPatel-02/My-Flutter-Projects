@@ -309,8 +309,8 @@ class _HomeState extends State<Home> {
                                   child: Container(
                                       height: 140,
                                       width: 130,
-                                      child: Image.network(
-                                        '${globalProductList[index].img}',
+                                      child: Image.asset(
+                                        '${globalProductList[index].img.first}',
                                         fit: BoxFit.fill,
                                       )),
                                 ),
@@ -597,8 +597,8 @@ class _HomeState extends State<Home> {
                                     child: Container(
                                         height: 140,
                                         width: 130,
-                                        child: Image.network(
-                                          '${globalProductList[index].img}',
+                                        child: Image.asset(
+                                          '${globalProductList[index].img.first}',
                                           fit: BoxFit.fill,
                                         )),
                                   ),

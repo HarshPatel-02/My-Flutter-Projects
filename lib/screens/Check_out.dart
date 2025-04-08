@@ -109,8 +109,8 @@ class _CheckOutState extends State<CheckOut> {
                     children: [
                       Padding(
                         padding: EdgeInsets.all(10),
-                        child: Image.network(
-                          cartItems[index].img,
+                        child: Image.asset(
+                          cartItems[index].img.first,
                           width: 100,
                           fit: BoxFit.fill,
                           height: 120,

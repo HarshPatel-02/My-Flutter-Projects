@@ -106,62 +106,76 @@ class _ProductDetailsState extends State<ProductDetails> {
                 },
                 child: Container(
                   color: Colors.grey.shade200,
-                  margin: EdgeInsets.symmetric(horizontal: 8),
-                  height: 250,
-                  width: double.infinity,
+                  // margin: EdgeInsets.symmetric(horizontal: 8),
+                  height: 350,
+                  width: 500,
                   child: CarouselSlider(
                       items:
-                      product.img
-                          .map(
-                            (item) =>
-                            Image.network(
-                              item,
-                              fit: BoxFit.contain,
+                          [
+                            for(int i=0;i<product.img.length;i++)
+                      Image.asset(
+                              product.img[i],
+                              fit: BoxFit.fill,
                               width: double.infinity,
-
+                              // height: double.infinity,
                             ),
-                      )
-                          .toList(),
+
+                          ],
+
+                      // product.img
+                      //     .map(
+                      //       (item) =>
+                      //       Image.network(
+                      //         item,
+                      //         fit: BoxFit.contain,
+                      //         width: double.infinity,
+                      //
+                      //       ),
+                      // )
+                      //     .toList(),
                       carouselController: carouselController,
                       options: CarouselOptions(
                         scrollPhysics: const BouncingScrollPhysics(),
                         autoPlay: true,
                         aspectRatio: 2,
                         viewportFraction: 1,
+
                         onPageChanged: (index, reason) {
                           setState(() {
                             currentIndex = index;
                           });
+
                         },
                       )),
                 ),
+
               ),
               SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: product.img
-                    .asMap()
-                    .entries
-                    .map((entry) {
-                  // print(entry);
-                  // print(entry.key);
-                  return GestureDetector(
-                    onTap: () => carouselController.animateToPage(entry.key),
-                    child: Container(
-                      width: currentIndex == entry.key ? 27 : 10,
-                      height: 8,
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 3.0,
-                      ),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: currentIndex == entry.key
-                              ? Colors.brown.shade500
-                              : Colors.brown.shade200),
-                    ),
-                  );
-                }).toList(),
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: product.img
+              //       .asMap()
+              //       .entries
+              //       .map((entry) {
+              //     // print(entry);
+              //     // print(entry.key);
+              //     return GestureDetector(
+              //       onTap: () => carouselController.animateToPage(entry.key),
+              //       child: Container(
+              //         width: currentIndex == entry.key ? 27 : 10,
+              //         height: 8,
+              //         margin: const EdgeInsets.symmetric(
+              //           horizontal: 3.0,
+              //         ),
+              //         decoration: BoxDecoration(
+              //             borderRadius: BorderRadius.circular(20),
+              //             color: currentIndex == entry.key
+              //                 ? Colors.brown.shade500
+              //                 : Colors.brown.shade200),
+              //       ),
+              //     );
+              //   }).toList(),
+              // ),
               SizedBox(
                 height: 30,
               ),

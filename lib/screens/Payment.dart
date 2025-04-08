@@ -124,7 +124,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   //   total = subtotal + deliveryCharge + taxCharge;
   // }
   void _calculateTotal() {
-    subtotal = cartItems.fold(0, (sum, item) => sum + (num.parse(item.price) * item.qty));
+    subtotal = cartItems.fold(0, (sum, item) => sum + ((item.price) * item.qty));
     total = subtotal + delivery_charge + tax_charge;
   }
 

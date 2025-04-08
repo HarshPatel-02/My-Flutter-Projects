@@ -95,7 +95,7 @@ class DataBaseHelper {
         $C_ID INTEGER PRIMARY KEY,
         $C_TITLE TEXT,
         $C_DESCRIPTION TEXT,
-        $C_PRICE TEXT,
+        $C_PRICE NUM,
         $C_CATEGORY TEXT,
         $C_RATING TEXT,
         $C_QTY INTEGER DEFAULT 1,
@@ -109,7 +109,7 @@ class DataBaseHelper {
         $F_ID INTEGER PRIMARY KEY,
         $F_TITLE TEXT,
         $F_DESCRIPTION TEXT,
-        $F_PRICE TEXT,
+        $F_PRICE NUM,
         $F_CATEGORY TEXT,
         $F_RATING TEXT,
         $F_QTY INTEGER DEFAULT 1,
@@ -126,7 +126,7 @@ class DataBaseHelper {
         $P_DOB TEXT,
         $P_PHONE TEXT,
         $P_GENDER TEXT,
-        $P_IMAGE TEXT,
+        $P_IMAGE String,
         FOREIGN KEY ($P_USER_ID) REFERENCES $TABLE_USER(id)
      )
     ''');
@@ -139,11 +139,11 @@ class DataBaseHelper {
       product_id INTEGER,
       title TEXT,
       description TEXT,
-      price REAL,
+      price NUM,
       category TEXT,
       rating REAL,
       quantity INTEGER DEFAULT 1,
-      image TEXT,
+      image String,
       datetime TEXT,
       FOREIGN KEY (user_id) REFERENCES $TABLE_USER(id)
     )
@@ -292,7 +292,7 @@ class DataBaseHelper {
           C_CATEGORY: product.category,
           C_RATING: product.rating,
           C_QTY: product.qty,
-          C_IMG: product.img,
+          C_IMG: product.img.first,
         },
         // product.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
@@ -330,7 +330,16 @@ class DataBaseHelper {
       final db = await this.db;
       return await db!.update(
         TABLE_CART,
-        product.toMap(),
+        {
+          C_TITLE: product.title,
+          C_DESCRIPTION: product.description,
+          C_PRICE: product.price,
+          C_CATEGORY: product.category,
+          C_RATING: product.rating,
+          C_QTY: product.qty,
+          C_IMG: product.img.first,
+
+        },
         where: '$C_ID = ?',
         whereArgs: [product.id],
       );
@@ -394,12 +403,12 @@ class DataBaseHelper {
             'product_id': item.id,
             'title': item.title,
             'description': item.description,
-            'price': num.parse(item.price), // Convert to numeric
+            'price': item.price, // Convert to numeric
             'category': item.category,
             'rating': num.parse(item.rating), // Convert to numeric
             'quantity': item.qty,
-            'image': item.img,
-            'datetime':orderDate
+            'image': item.img.first,
+            'datetime':orderDate,
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
@@ -431,8 +440,8 @@ class DataBaseHelper {
         id: maps[i]['O_ID'],
         category: maps[i]['category'],
         description: maps[i]['description'],
-        img: maps[i]['image'],
-        price:  maps[i]['price'].toString(),
+        img: [maps[i]['image']as String],
+        price:  maps[i]['price'],
         rating:  maps[i]['rating'].toString(),
         title: maps[i]['title'] ,
         qty:  maps[i]['quantity'],
@@ -504,7 +513,7 @@ class DataBaseHelper {
           F_CATEGORY: product.category,
           F_RATING: product.rating,
           F_QTY: product.qty,
-          F_IMG: product.img,
+          F_IMG: product.img.first,
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );

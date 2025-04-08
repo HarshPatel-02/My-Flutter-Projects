@@ -10,13 +10,14 @@
 class ProductItem {
   int id;
   int? userId;
-  String img;
+  List<String> img;
   String category;
   String title;
-  String price;
+  num price;
   String rating;
   String description;
   int qty;
+
    dynamic orderDate;
 
   ProductItem({
@@ -36,7 +37,8 @@ class ProductItem {
     return {
       'id': this.id,
       'userId': userId,
-      'img': this.img,
+      // 'img': this.img,
+      'img': img.isNotEmpty ? img.first : null,
       'category': this.category,
       'title': this.title,
       'price': this.price,
@@ -50,10 +52,11 @@ class ProductItem {
     return ProductItem(
       id: (map['id'] as int),
       userId: map['userId'],
-      img: map['img'] as String,
+      // img: map['img'],
+      img: [map['img']as String],
       category: map['category'] as String,
       title: map['title'] as String,
-      price: map['price'] as String,
+      price: map['price'] as num,
       rating: map['rating'] as String,
       description: map['description'] as String,
       qty: map['qty'] ??1 as int,
@@ -62,7 +65,7 @@ class ProductItem {
   }
   @override
   String toString() {
-    return '(Title :$title,Price: $price,)';
+    return '(Title :$title,Price: $price,Img: ${img.first})';
   }
 
 

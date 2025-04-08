@@ -108,7 +108,7 @@ class _SearchState extends State<Search> {
                             .map((product) {
                           return ListTile(
                             leading: Image.network(
-                              product.img,
+                              product.img.first,
                               width: 50,
                               height: 50,
                               fit: BoxFit.cover,

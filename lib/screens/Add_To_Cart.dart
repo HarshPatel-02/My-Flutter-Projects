@@ -95,7 +95,7 @@ class _AddToCartState extends State<AddToCart> {
   }
 
   void _calculateTotal() {
-    subtotal = cartItems.fold(0, (sum, item) => sum + (num.parse(item.price) * item.qty));
+    subtotal = cartItems.fold(0, (sum, item) => sum + ((item.price) * item.qty));
     total = subtotal + delivary_charge + tax_charge;
   }
 
@@ -152,8 +152,8 @@ class _AddToCartState extends State<AddToCart> {
                       children: [
                         Padding(
                           padding: EdgeInsets.all(10),
-                          child: Image.network(
-                            cartItems[index].img,
+                          child: Image.asset(
+                            cartItems[index].img.first,
                             width: 100,
                             fit: BoxFit.fill,
                             height: 120,
