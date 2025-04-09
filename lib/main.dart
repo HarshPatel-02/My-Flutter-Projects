@@ -5,6 +5,7 @@ import 'package:task1/Theme/theme.dart';
 import 'package:task1/screens/Add_To_Cart.dart';
 import 'package:task1/screens/Bath_details.dart';
 import 'package:task1/screens/BedRoom.dart';
+import 'package:task1/screens/Payment.dart';
 import 'package:task1/screens/Product_details.dart';
 import 'package:task1/screens/Category.dart';
 import 'package:task1/screens/Dining_details.dart';
@@ -12,9 +13,12 @@ import 'package:task1/screens/Dinning.dart';
 import 'package:task1/screens/Home.dart';
 import 'package:task1/screens/Kitchen_details.dart';
 import 'package:task1/screens/Login.dart';
+import 'package:task1/screens/Profile.dart';
+import 'package:task1/screens/Search.dart';
 import 'package:task1/screens/Sign_up-Extra.dart';
 import 'package:task1/screens/Sign_up.dart';
 import 'package:task1/screens/Splash.dart';
+import 'package:task1/screens/WelcomeScreen.dart';
 import 'package:task1/screens/api.dart';
 import 'package:task1/screens/userprofile.dart';
 // import 'package:task1/screens/userprofile.dart';
@@ -28,35 +32,75 @@ import 'screens/Bottom_navigationBar.dart';
 
 List<ProductItem> cartItems=[];
 List<ProductItem> favoriteProducts = [];
+List<ProductItem> orderItems=[];
 
+
+var myCat=null;
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool hasSeenWelcome = prefs.getBool('hasSeenWelcome') ?? false;
+
+  DataBaseHelper dbHelper = DataBaseHelper.instance;
+  // await dbHelper.printAllTables();
+  // await dbHelper.deleteDatabaseFile();
+  await dbHelper.printTableData();
+  // await dbHelper.printTableColumns('CART');
+  // await dbHelper.printTableColumns('FAVOURITE');
+
+  runApp(MyApp(hasSeenWelcome: hasSeenWelcome));
+}
+
+class MyApp extends StatelessWidget {
+  final bool hasSeenWelcome;
+
+  const MyApp({super.key, required this.hasSeenWelcome});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: hasSeenWelcome ? SplashScreen() : Welcomescreen(),
+    );
+  }
+}
+/*
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp();
-  DataBaseHelper dbHelper = DataBaseHelper();
+  DataBaseHelper dbHelper = DataBaseHelper.instance;
+  // await dbHelper.printAllTables();
+ // await dbHelper.deleteDatabaseFile();
+  await dbHelper.printTableColumns('CART');
+  await dbHelper.printTableColumns('FAVOURITE');
   await SharedPreferences.getInstance();
-  runApp(const MyApp());
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool? hasSeenWelcome = prefs.getBool('hasSeenWelcome') ?? false;
+  runApp( MyApp( hasSeenWelcome:hasSeenWelcome ,));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool hasSeenWelcome;
+
+   MyApp({super.key,required this.hasSeenWelcome});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+
       debugShowCheckedModeBanner: false,   //debugge nu lable off krva
 
-      home: const MyHomePage(title: 'Task 1'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, });
 
-  final String title;
+
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -80,8 +124,8 @@ class _MyHomePageState extends State<MyHomePage> {
       //     brightness:Brightness.light,
       // ),
       // home: Home(),
-      // home:profile(),
-      //   home: Login(),
+      // home:Profile(),
+      // home: Login(),
     // home: SignUp(),
     // home: BottomNavigationbar(),
     //   home: Bedroom(),
@@ -91,17 +135,23 @@ class _MyHomePageState extends State<MyHomePage> {
       // home: BathDetails(),
       // home: DiningDetails(),
       // home: KitchenDetails(),
-
+      // home: Search(),
     // home: Categorys(),
-      home: SplashScreen(),
-    //   home: UsersScreen(),
+    //   home: SplashScreen(),
+      home: hasSeenWelcome ? SplashScreen() : Welcomescreen(),
+
+      //   home: UsersScreen(),
       // home: Userapp(),
       // home: AddToCart(),
       // home: Profile(),
+      //    home: Welcomescreen(),
 
+      // home: Payment(),
       // theme: lightMode,
       // darkTheme: darkMode,
     );
   }
 }
+
+*/
 

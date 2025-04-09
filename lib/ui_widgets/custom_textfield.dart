@@ -4,10 +4,13 @@ class CustomTextfield extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
   final suffixIcon;
+  final onTap;
 
   IconData? icon;
   final bool obscureText;
   final VoidCallback? onSuffixIconPressed;
+  final validator;
+  final keyboardType;
 
   CustomTextfield({
     super.key,
@@ -17,14 +20,21 @@ class CustomTextfield extends StatelessWidget {
     this.suffixIcon,
     this.obscureText = false,
     this.onSuffixIconPressed,
+  this.validator,
+    this.onTap,
+    this.keyboardType,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       cursorColor: Colors.brown,
       controller: controller,
       obscureText: obscureText,
+      validator: validator,
+      onTap: onTap,
+keyboardType:keyboardType ,
+
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.brown.shade200, width: 1.6),

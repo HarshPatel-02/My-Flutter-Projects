@@ -17,12 +17,15 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  DataBaseHelper? dbHelper;
+  final _formkey= GlobalKey<FormState>();
+  final DataBaseHelper dbHelper = DataBaseHelper.instance;
+
 
   @override
   void initState() {
     super.initState();
-    dbHelper = DataBaseHelper();
+
+    dbHelper.printTableData();
   }
   bool _obscureText = true;
 
@@ -34,11 +37,11 @@ class _SignUpState extends State<SignUp> {
    String upassword=PasswordController.text.trim();
 
    if(uemail.isEmpty){
-     Fluttertoast.showToast(msg: 'Please Enter Username');
+     Fluttertoast.showToast(msg: 'Please Enter Email');
      return;
    }
    if(upassword.isEmpty){
-   Fluttertoast.showToast(msg:'Please Enter Email');
+   Fluttertoast.showToast(msg:'Please Enter Password');
       return;
    }
    UserModel? existingUser = await dbHelper!.getUserByEmail(uemail,);
@@ -93,27 +96,58 @@ class _SignUpState extends State<SignUp> {
                 Column(
                   spacing: 30,
                   children: [
-                    CustomTextfield(hintText: 'Email', controller: emailController,icon:Icons.email,),
-                    CustomTextfield(
-                      hintText: 'Password',
-                      controller: PasswordController,
-                      icon: Iconsax.lock5,
-                      obscureText: _obscureText,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureText ? Iconsax.eye_slash : Iconsax.eye,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
-                        },
-                      ), onSuffixIconPressed: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
-                    ),
+                    Form(
+
+                        key:_formkey,
+                        child: Column(
+                          spacing: 35,
+                          children: [
+                            CustomTextfield(hintText: 'Email', controller: emailController,icon:Icons.email,
+                              validator: (value){if (value == null || value.isEmpty) {
+                                return 'Please enter email';
+                              }
+                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                return 'Please enter valid email';
+                              }
+                              return null;
+                              },),
+                            CustomTextfield(
+                              hintText: 'Password',
+                              controller: PasswordController,
+                              icon: Iconsax.lock5,
+                              obscureText: _obscureText,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter password';
+                                }
+                                if (value.length < 6) {
+                                  return 'Password must be at least 6 characters';
+                                }
+                                if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$').hasMatch(value)) {
+                                  return 'Password must contain letters and numbers';
+                                }
+                                return null;
+                              },
+
+
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureText ? Iconsax.eye_slash : Iconsax.eye,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscureText = !_obscureText;
+                                  });
+                                },
+                              ), onSuffixIconPressed: () {
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
+                            },
+                            ),
+
+                          ],
+                        )),
 
 
                   ],
@@ -123,15 +157,12 @@ class _SignUpState extends State<SignUp> {
                 Padding(
                   padding: EdgeInsets.only(top: 10),
                   child: ElevatedButton(onPressed: (){
-
-
-
-
-                    signup();
-
+                    if (_formkey.currentState!.validate()) {
+                      signup();
+                    }
                   },style: ElevatedButton.styleFrom(
 
-                    backgroundColor: Colors.brown.shade200,
+                    backgroundColor: Colors.brown.shade100,
                     minimumSize: Size(230, 50),
 
                   ),

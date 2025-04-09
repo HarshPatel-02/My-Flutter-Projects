@@ -9,16 +9,21 @@
 
 class ProductItem {
   int id;
-  String img;
+  int? userId;
+  List<String> img;
   String category;
   String title;
-  String price;
+  num price;
   String rating;
   String description;
   int qty;
+  // int? productId;
+
+   dynamic orderDate;
 
   ProductItem({
     required this.id,
+    this.userId,
     required this.img,
     required this.title,
     required this.category,
@@ -26,37 +31,45 @@ class ProductItem {
     required this.rating,
     required this.description,
     this.qty=1,
+    this.orderDate,
+    // this.productId,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'id': this.id,
-      'img': this.img,
+      'userId': userId,
+      // 'img': this.img,
+      'img': img.isNotEmpty ? img.first : null,
       'category': this.category,
       'title': this.title,
       'price': this.price,
       'rating': this.rating,
       'description': this.description,
       'qty': this.qty,
+      // 'productId':this.productId,
     };
   }
 
   factory ProductItem.fromMap(Map<String, dynamic> map) {
     return ProductItem(
       id: (map['id'] as int),
-      img: map['img'] as String,
+      // productId:(map['productId'] as int),
+      userId: map['userId'],
+      // img: map['img'],
+      img: [map['img']as String],
       category: map['category'] as String,
       title: map['title'] as String,
-      price: map['price'] as String,
+      price: map['price'] as num,
       rating: map['rating'] as String,
       description: map['description'] as String,
       qty: map['qty'] ??1 as int,
-
+      orderDate: map['order_date'],
     );
   }
   @override
   String toString() {
-    return '(Title :$title,Price: $price,)';
+    return '(Title :$title,Price: $price,Img: ${img.first},product:$id)';
   }
 
 

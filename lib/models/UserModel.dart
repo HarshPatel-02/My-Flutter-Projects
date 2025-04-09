@@ -21,13 +21,15 @@
 
 
 class UserModel {
+  int? id;
   String email;
   String password;
 
-  UserModel({required this.email, required this.password});
+  UserModel({required this.email, required this.password,this.id});
 
   Map<String, dynamic> toMap() {
     return {
+      'id':id,
       'Email': email,
       'Password': password,
     };
@@ -35,6 +37,7 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
+      id: map['id'],
       email: map['Email'],
       password: map['Password'],
     );

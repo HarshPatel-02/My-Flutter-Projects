@@ -7,18 +7,38 @@ import 'package:task1/screens/Favourite.dart';
 import 'package:task1/screens/Search.dart';
 
 import '../ProductModel.dart';
+import '../dataBase/DataBaseHelperClass.dart';
 import '../models/ProductModel.dart';
 import '../models/dataProvider.dart';
 import 'Product_details.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  var tabChange;
+  Home({super.key, required this.tabChange});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  final DataBaseHelper dbHelper = DataBaseHelper.instance;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadFavItems();
+  }
+  Future<void> _loadFavItems() async {
+    try {
+      int userId = 1;
+      favoriteProducts = await dbHelper.getFavItems(userId);
+      setState(() {});
+    } catch (e) {
+      print("Error loading cart items: $e");
+    }
+  }
+
   void _onRemoveFromFavorites(ProductItem product) {
     setState(() {
       Fluttertoast.showToast(msg: 'Remove favorite');
@@ -27,13 +47,21 @@ class _HomeState extends State<Home> {
   }
 
   List imageList = [
-    {"id": 1, "image_path": 'assets/images/sofa1.jpeg'},
-    {"id": 2, "image_path": 'assets/images/sofa2.jpeg'},
-    {"id": 3, "image_path": 'assets/images/sofa1.jpeg'},
+    {"id": 1, "image_path": 'assets/images/hh1.jpg'},
+    {"id": 2, "image_path": 'assets/images/home 2.jpg'},
+    {"id": 3, "image_path": 'assets/images/home 3.jpg'},
   ];
   List<Category>? categoryList = [
     Category(
-        category: "BedRoom",
+        category: "Bedroom",
+        img:
+            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
+    Category(
+        category: "Bath",
+        img:
+            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
+    Category(
+        category: "Living",
         img:
             "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
     Category(
@@ -41,11 +69,7 @@ class _HomeState extends State<Home> {
         img:
             "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
     Category(
-        category: "LivingRoom",
-        img:
-            "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
-    Category(
-        category: "Bath",
+        category: "Dining",
         img:
             "https://t4.ftcdn.net/jpg/05/03/32/35/360_F_503323522_qvU0AkmlnGXF2JyKYw0lPHsBJ27jRBtH.jpg"),
   ];
@@ -68,8 +92,8 @@ class _HomeState extends State<Home> {
           child: Row(
             children: [
               Image.asset(
-                'assets/images/Splash_logo_only.png',
-                fit: BoxFit.fitHeight,
+                'assets/images/Logo_22.png',
+                // fit: BoxFit.fitHeight,
                 height: 40,
               ),
               // Image.asset('assets/images/Splash_logo_text.png',fit: BoxFit.fitHeight,),
@@ -181,6 +205,8 @@ class _HomeState extends State<Home> {
 // change in
                   itemBuilder: (context, index) => GestureDetector(
                     onTap: () {
+                      widget.tabChange(1);
+                      myCat=categoryList![index].category.toString();
                       // Navigator.push(
                       //     context,
                       //     MaterialPageRoute (
@@ -283,8 +309,8 @@ class _HomeState extends State<Home> {
                                   child: Container(
                                       height: 140,
                                       width: 130,
-                                      child: Image.network(
-                                        '${globalProductList[index].img}',
+                                      child: Image.asset(
+                                        '${globalProductList[index].img.first}',
                                         fit: BoxFit.fill,
                                       )),
                                 ),
@@ -294,37 +320,60 @@ class _HomeState extends State<Home> {
                                   top: 5,
                                   right: 5,
                                   child: IconButton.filledTonal(
-                                    onPressed: () {
-                                      setState(() {
-                                        if (!favoriteProducts
-                                            .contains(
-                                           product)) {
-                                          favoriteProducts
-                                              .add(product);
-                                          Fluttertoast.showToast(
-                                              msg: 'Favorite Added');
-                                        } else {
-                                          favoriteProducts
-                                              .remove(product);
-                                          Fluttertoast.showToast(
-                                              msg: 'Favorite Remove');
-                                        }
-                                      });
+                                    onPressed: () async {
+                                      bool isFavorite = favoriteProducts.any((item) => item.id == product.id);
+
+                                      if (isFavorite) {
+                                        await dbHelper.removeFromFav(product.id);
+                                        setState(() {
+                                          favoriteProducts.removeWhere((item) => item.id == product.id);
+                                          Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
+                                        });
+                                      } else {
+                                        int userId = 1; // Replace with actual user ID logic
+                                        await dbHelper.addToFav(product, userId);
+                                        setState(() {
+                                          favoriteProducts.add(product);
+                                          Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
+                                        });
+                                      }
                                     },
                                     icon: Icon(
-                                      favoriteProducts
-                                          .contains(product)
-                                          ? Icons.favorite
-                                          : Icons.favorite_border,
-                                      color: favoriteProducts
-                                          .contains(product)
-                                          ? Colors.red
-                                          : Colors.brown,
+                                      favoriteProducts.any((item) => item.id == product.id) ? Icons.favorite : Icons.favorite_border,
+                                      color: favoriteProducts.any((item) => item.id == product.id) ? Colors.red : Colors.brown,
                                     ),
-                                    tooltip: 'favorite',
-                                    iconSize: 18,
+                                    tooltip: 'Favorite',
+                                    iconSize: 24,
                                   ),
                                 )
+                                // Positioned(
+                                //   top: 5,
+                                //   right: 5,
+                                //   child: IconButton.filledTonal(
+                                //     onPressed: () async {
+                                //       bool isFavorite = favoriteProducts.any((item) => item.id == product.id);
+                                //
+                                //       if (isFavorite) {
+                                //         await dbHelper.removeFromFav(product.id);
+                                //         favoriteProducts.removeWhere((item) => item.id == product.id);
+                                //         Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
+                                //       } else {
+                                //         int userId = 1;
+                                //         await dbHelper.addToFav(product,userId);
+                                //         favoriteProducts.add(product);
+                                //         Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
+                                //       }
+                                //
+                                //       setState(() {});
+                                //     },
+                                //     icon: Icon(
+                                //       favoriteProducts.any((item) => item.id == product.id) ? Icons.favorite : Icons.favorite_border,
+                                //       color: favoriteProducts.any((item) => item.id == product.id) ? Colors.red : Colors.brown,
+                                //     ),
+                                //     tooltip: 'Favorite',
+                                //     iconSize: 24,
+                                //   )
+                                // )
                               ],
                             ),
                             Text(
@@ -385,7 +434,7 @@ class _HomeState extends State<Home> {
                       Stack(
                         children: [
                           Image.asset(
-                            'assets/images/sofa1.jpeg',
+                            'assets/Product image/Modern Velvet Armchair -1.jpg',
                             fit: BoxFit.fill,
                             width: double.infinity,
                             height: 250,
@@ -394,12 +443,12 @@ class _HomeState extends State<Home> {
                             // top: 5,
                             bottom: 10,
                             right: 0,
-                            left: 20,
+                            left: 120,
                             child: Text(
                               'Discover New Decorify collection',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.brown.shade800,
                               ),
                             ),
                           ),
@@ -417,7 +466,7 @@ class _HomeState extends State<Home> {
                   Stack(
                     children: [
                       Image.asset(
-                        'assets/images/sofa1.jpeg',
+                        'assets/Product image/Elegant Ceiling Fan -1.jpg',
                         width: MediaQuery.sizeOf(context).width / 2 - 24,
                         height: 300,
                         fit: BoxFit.fill,
@@ -426,12 +475,12 @@ class _HomeState extends State<Home> {
                         // top: 5,
                         bottom: 10,
                         right: 0,
-                        left: 20,
+                        left: 28,
                         child: Text(
                           'Furniture Shop',
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.brown.shade800,
                           ),
                         ),
                       )
@@ -443,21 +492,21 @@ class _HomeState extends State<Home> {
                       Stack(
                         children: [
                           Image.asset(
-                            'assets/images/sofa1.jpeg',
+                            'assets/Product image/Stylish Ottoman -1.jpg',
                             width: MediaQuery.sizeOf(context).width / 2 - 24,
                             height: 300 / 2 - 8,
                             fit: BoxFit.fitHeight,
                           ),
                           Positioned(
                             // top: 5,
-                            bottom: 10,
+                            bottom: 4,
                             right: 0,
-                            left: 20,
+                            left: 30,
                             child: Text(
                               'Explore Decore',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.brown.shade800,
                               ),
                             ),
                           )
@@ -469,21 +518,21 @@ class _HomeState extends State<Home> {
                       Stack(
                         children: [
                           Image.asset(
-                            'assets/images/sofa1.jpeg',
+                            'assets/Product image/Luxury Dinnerware Set -1.jpg',
                             width: MediaQuery.sizeOf(context).width / 2 - 24,
                             height: 300 / 2 - 8,
                             fit: BoxFit.fitHeight,
                           ),
                           Positioned(
                             // top: 5,
-                            bottom: 10,
+                            bottom: 2,
                             right: 0,
                             left: 20,
                             child: Text(
                               'Servewares Shop',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.brown.shade800,
                               ),
                             ),
                           )
@@ -548,8 +597,8 @@ class _HomeState extends State<Home> {
                                     child: Container(
                                         height: 140,
                                         width: 130,
-                                        child: Image.network(
-                                          '${globalProductList[index].img}',
+                                        child: Image.asset(
+                                          '${globalProductList[index].img.first}',
                                           fit: BoxFit.fill,
                                         )),
                                   ),
@@ -559,35 +608,28 @@ class _HomeState extends State<Home> {
                                     top: 5,
                                     right: 5,
                                     child: IconButton.filledTonal(
-                                      onPressed: () {
-                                        setState(() {
-                                          if (!favoriteProducts
-                                              .contains(
-                                              product)) {
-                                            favoriteProducts
-                                                .add(product);
-                                            Fluttertoast.showToast(
-                                                msg: 'Favorite Added');
-                                          } else {
-                                            favoriteProducts
-                                                .remove(product);
-                                            Fluttertoast.showToast(
-                                                msg: 'Favorite Remove');
-                                          }
-                                        });
+                                      onPressed: () async {
+                                        bool isFavorite = favoriteProducts.any((item) => item.id == product.id);
+
+                                        if (isFavorite) {
+                                          await dbHelper.removeFromFav(product.id);
+                                          favoriteProducts.removeWhere((item) => item.id == product.id);
+                                          Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
+                                        } else {
+                                          int userId = 1;
+                                          await dbHelper.addToFav(product,userId);
+                                          favoriteProducts.add(product);
+                                          Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
+                                        }
+
+                                        setState(() {});
                                       },
                                       icon: Icon(
-                                        favoriteProducts
-                                            .contains(product)
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        color: favoriteProducts
-                                            .contains(product)
-                                            ? Colors.red
-                                            : Colors.brown,
+                                        favoriteProducts.any((item) => item.id == product.id) ? Icons.favorite : Icons.favorite_border,
+                                        color: favoriteProducts.any((item) => item.id == product.id) ? Colors.red : Colors.brown,
                                       ),
-                                      tooltip: 'favorite',
-                                      iconSize: 18,
+                                      tooltip: 'Favorite',
+                                      iconSize: 24,
                                     ),
                                   )
                                 ],

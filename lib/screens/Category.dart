@@ -3,13 +3,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:task1/screens/Product_details.dart';
 
+import '../dataBase/DataBaseHelperClass.dart';
 import '../main.dart';
+import '../models/ProductModel.dart';
 import '../models/dataProvider.dart';
 
 
 class Categorys extends StatefulWidget {
-  // String category;
-  const Categorys({super.key,});
+  final String category;
+  const Categorys({super.key,required this.category});
 
   @override
   State<Categorys> createState() => _CategorysState();
@@ -17,9 +19,38 @@ class Categorys extends StatefulWidget {
 
 class _CategorysState extends State<Categorys> {
   String selectedCategory = "All";
+  final DataBaseHelper dbHelper = DataBaseHelper.instance;
+
+
+  @override
+  void initState() {
+    selectedCategory = widget.category;
+    if(myCat!=null){
+      selectedCategory=myCat;
+    }
+    // TODO: implement initState
+    super.initState();
+    loadFavorites();
+  }
+
+  void loadFavorites() async {
+    int userId = 1;
+    favoriteProducts = await dbHelper.getFavItems(userId); // Fetch from SQLite
+    setState(() {}); // Update UI
+  }
+
+  void _onRemoveFromFavorites(ProductItem product) {
+    setState(() {
+      Fluttertoast.showToast(msg: 'Remove favorite');
+      favoriteProducts.remove(product);
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
+
+
     // Filtering products based on selectedCategory
     final filteredProducts = selectedCategory == "All"
         ? globalProductList.toList()
@@ -79,7 +110,7 @@ print('------------ Favourite List :$favoriteProducts');
                               borderRadius: BorderRadius.circular(6),
                               child: Container(
 
-                                child: Image.network(product.img,
+                                child: Image.asset(product.img.first,
                                     fit: BoxFit.fill, height: 165, width: 300),
                               ),
                             ),
@@ -87,36 +118,29 @@ print('------------ Favourite List :$favoriteProducts');
                               top: 5,
                               right: 5,
                               child: IconButton.filledTonal(
-                                onPressed: () {
-                                  setState(() {
-                                    if (!favoriteProducts
-                                        .contains(product)) {
-                                      favoriteProducts
-                                          .add(product);
-                                      Fluttertoast.showToast(
-                                          msg: 'Favorite Added');
-                                    } else {
-                                      favoriteProducts
-                                          .remove(product);
-                                      Fluttertoast.showToast(
-                                          msg: 'Favorite Remove');
-                                    }
-                                  });
-                                },
+                                onPressed: () async {
+                                  bool isFavorite = favoriteProducts.any((item) => item.id == product.id);
 
+                                  if (isFavorite) {
+                                    await dbHelper.removeFromFav(product.id);
+                                    favoriteProducts.removeWhere((item) => item.id == product.id);
+                                    Fluttertoast.showToast(msg: 'Favorite Removed', backgroundColor: Colors.red);
+                                  } else {
+                                    int userId = 1;
+                                    await dbHelper.addToFav(product,userId);
+                                    favoriteProducts.add(product);
+                                    Fluttertoast.showToast(msg: 'Favorite Added', backgroundColor: Colors.green);
+                                  }
+
+                                  setState(() {});
+                                },
                                 icon: Icon(
-                                  favoriteProducts
-                                      .contains(product)
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: favoriteProducts
-                                      .contains(product)
-                                      ? Colors.red
-                                      : Colors.brown,
+                                  favoriteProducts.any((item) => item.id == product.id) ? Icons.favorite : Icons.favorite_border,
+                                  color: favoriteProducts.any((item) => item.id == product.id) ? Colors.red : Colors.brown,
                                 ),
-                                tooltip: 'favorite',
-                                iconSize: 18,
-                              ),
+                                tooltip: 'Favorite',
+                                iconSize: 24,
+                              )
 
                             ),
                           ],

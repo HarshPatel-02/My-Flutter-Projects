@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:task1/screens/getData.dart';
-import 'package:task1/ui_widgets/custom_.dart';
-import 'package:task1/ui_widgets/custom_textfield.dart';
+import 'dart:convert';
+import 'dart:io';
 
-import '../ui_widgets/AppButton.dart';
+import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task1/dataBase/DataBaseHelperClass.dart';
+import 'package:task1/ui_widgets/custom_textfield.dart';
 
 class userprofile extends StatefulWidget {
   const userprofile({super.key});
@@ -14,219 +17,312 @@ class userprofile extends StatefulWidget {
 }
 
 class _userprofileState extends State<userprofile> {
-  List<String> items= <String>[
-    'Male',
-    'Female'
-  ];
+  List<String> items = <String>['Male', 'Female'];
+  File? _image;
+  String? base64Image;
 
-  String dropdownValue ='Male';
+  final DataBaseHelper dbHelper = DataBaseHelper.instance;
+  String dropdownValue = 'Male';
+  final _formKey = GlobalKey<FormState>(); // Add Form key for validation
 
-  TextEditingController firstnameController =TextEditingController();
-  TextEditingController lastnameController =TextEditingController();
-  TextEditingController emailController =TextEditingController();
-  TextEditingController dateofbirthController =TextEditingController();
-  TextEditingController phonenoController =TextEditingController();
-  String? dropdown = null;
-  // String dropdownValue ='Female';
+  TextEditingController firstnameController = TextEditingController();
+  TextEditingController lastnameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController dateofbirthController = TextEditingController();
+  TextEditingController phonenoController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        _image = File(image.path);
+      });
+
+      List<int> imageBytes = await _image!.readAsBytes();
+      base64Image = base64Encode(imageBytes);
+
+      SharedPreferences sp = await SharedPreferences.getInstance();
+      sp.setString("profileImage", base64Image!);
+    }
+  }
+
+  Future<void> loadData() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    int? userId = sp.getInt('user_id');
+    if (userId == null) {
+      print('No user ID found in SharedPreferences');
+      return;
+    }
+
+    try {
+      final profile = await dbHelper.getUserProfile(userId);
+      if (profile != null) {
+        setState(() {
+          firstnameController.text = profile[DataBaseHelper.P_FIRSTNAME] ?? '';
+          lastnameController.text = profile[DataBaseHelper.P_LASTNAME] ?? '';
+          emailController.text = profile[DataBaseHelper.P_EMAIL] ?? '';
+          dateofbirthController.text = profile[DataBaseHelper.P_DOB] ?? '';
+          phonenoController.text = profile[DataBaseHelper.P_PHONE] ?? '';
+          dropdownValue = profile[DataBaseHelper.P_GENDER] ?? 'Male';
+          base64Image = profile[DataBaseHelper.P_IMAGE];
+        });
+        print('Profile loaded: $profile');
+      } else {
+        print('No profile data found for user ID: $userId');
+      }
+    } catch (e) {
+      print('Error loading profile: $e');
+    }
+  }
+
+  Future<void> saveData() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    int? userId = sp.getInt('user_id');
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User not logged in')),
+      );
+      return;
+    }
+
+    // Validate the form
+    if (_formKey.currentState!.validate()) {
+      Map<String, dynamic> profileData = {
+        DataBaseHelper.P_FIRSTNAME: firstnameController.text,
+        DataBaseHelper.P_LASTNAME: lastnameController.text,
+        DataBaseHelper.P_EMAIL: emailController.text,
+        DataBaseHelper.P_DOB: dateofbirthController.text,
+        DataBaseHelper.P_PHONE: phonenoController.text,
+        DataBaseHelper.P_GENDER: dropdownValue,
+        DataBaseHelper.P_IMAGE: base64Image,
+      };
+
+      try {
+        await dbHelper.saveUserProfile(userId, profileData);
+        print('Profile saved: $profileData');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Data Saved Successfully',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown.shade700),
+            ),
+            backgroundColor: Colors.brown.shade100,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        await loadData();
+        Navigator.pop(context, true);
+      } catch (e) {
+        print('Error saving profile: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving data: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill all required fields correctly')),
+      );
+    }
+  }
+
+  // Validation functions
+  String? validateRequired(String? value, String fieldName) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter $fieldName';
+    }
+    return null;
+  }
+
+  String? validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter email';
+    }
+    final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegExp.hasMatch(value)) {
+      return 'Enter a valid email (e.g., user@example.com)';
+    }
+    return null;
+  }
+
+  String? validatePhoneNumber(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter phone number';
+    }
+    final phoneRegExp = RegExp(r'^(\+\d{1,3}[- ]?)?\d{10}$');
+    if (!phoneRegExp.hasMatch(value)) {
+      return 'Enter a valid 10-digit phone number (e.g., +91 9876543210)';
+    }
+    if (RegExp(r'0{5,}').hasMatch(value)) {
+      return 'Phone number cannot contain 5 or more consecutive zeros';
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    // List<String> gender=['Male','Female'];
-
-
-
     return Scaffold(
       appBar: AppBar(
-
-      title:Text('Profile'),centerTitle: true,
-        backgroundColor: Color(0xFFF9FF40),
-          leading: Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                icon: const Icon(Icons.arrow_back_ios),
-                onPressed: () { Scaffold.of(context).openDrawer(); },
-                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-              );
-            },
-          )
-
-
+        title: Text('Profile'),
+        centerTitle: true,
+        backgroundColor: Colors.brown.shade200,
       ),
-
-      body: Container(
-
-
-        width: double.infinity,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            spacing: 20,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children:[
-              Icon(Icons.account_circle,size: 120,color: Colors.blue),
-
-
-              // ClipRRect(
-              //   child: Image.asset('assets/profile.png',fit: BoxFit.fill,width: 140,height: 140,),
-              //     borderRadius: BorderRadius.circular(140),),
-              // const SizedBox(height: 30),
-
-              // CustomContainer(containerText: 'this is '),   //custom container in text property
-
-             CustomTextfield(hintText: 'FirstName', controller: firstnameController),
-              // const SizedBox(height: 20),
-
-              CustomTextfield(hintText: 'Last Name', controller: lastnameController),
-
-              CustomTextfield(hintText: 'Email', controller: emailController),
-              CustomTextfield(hintText: 'date Of Birth', controller: dateofbirthController),
-              CustomTextfield(hintText: 'Phone Number', controller: phonenoController),
-
-
-
-
-              // TextField(
-              //   controller: lastnameController,
-              //   decoration: InputDecoration(
-              //
-              //       hintText: 'Last Name',
-              //       border: OutlineInputBorder(borderRadius:BorderRadius.circular(11))) ,
-              //
-              // ),
-              // const SizedBox(height: 20),
-
-              // TextField(
-              //   controller: emailController,
-              //
-              //   decoration: InputDecoration(
-              //       hintText: 'Email',
-              //       suffixIcon:IconButton(
-              //         icon: Icon(Icons.email), onPressed: () {  },
-              //       ) ,
-              //       border: OutlineInputBorder(borderRadius:BorderRadius.circular(11))) ,
-              //
-              //
-              // ),
-              // const SizedBox(height: 20),
-
-              // TextField(
-              //   controller: dateofbirthController,
-              //
-              //     onTap: () async{
-              //       DateTime? d1=await showDatePicker(context: context, firstDate: DateTime(2001,1,1), lastDate: DateTime(2025,1,1));
-              //       if(d1!=null){
-              //         dateofbirthController.text=d1.day.toString();
-              //
-              //       }
-              //     },
-              //   decoration: InputDecoration(
-              //       hintText: 'Date of Birth',
-              //       suffixIcon:IconButton(
-              //         icon: Icon(Icons.date_range), onPressed: () {  },
-              //       ) ,
-              //
-              //       border: OutlineInputBorder(borderRadius:BorderRadius.circular(11))) ,
-              //
-              //
-              // ),
-              // const SizedBox(height: 20),
-
-              // TextField(
-              //   controller: phonenoController,
-              //
-              //   decoration: InputDecoration(
-              //       hintText: 'Phone Number',
-              //
-              //       border: OutlineInputBorder(borderRadius:BorderRadius.circular(11))) ,
-              //
-              // ),
-              // const SizedBox(height: 20),
-
-              Center(
-
+      body: Form(
+        key: _formKey, // Wrap in Form widget
+        child: Container(
+          width: double.infinity,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              spacing: 20,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: 10),
+                Stack(
+                  children: [
+                    SizedBox(
+                      height: 120,
+                      width: 120,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: _image != null
+                            ? Image.file(_image!, fit: BoxFit.cover)
+                            : base64Image != null
+                            ? Image.memory(base64Decode(base64Image!), fit: BoxFit.cover)
+                            : const Image(
+                          image: NetworkImage(
+                            'https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg',
+                          ),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        width: 35,
+                        height: 35,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: Colors.brown,
+                        ),
+                        child: InkWell(
+                          onTap: _pickImage,
+                          child: Icon(
+                            Icons.camera_alt,
+                            size: 20,
+                            color: Colors.brown.shade200,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                CustomTextfield(
+                  hintText: 'First Name',
+                  controller: firstnameController,
+                  suffixIcon: Icon(Iconsax.user),
+                  validator: (value) => validateRequired(value, 'first name'),
+                ),
+                CustomTextfield(
+                  hintText: 'Last Name',
+                  controller: lastnameController,
+                  suffixIcon: Icon(Iconsax.user),
+                  validator: (value) => validateRequired(value, 'last name'),
+                ),
+                CustomTextfield(
+                  hintText: 'Email',
+                  controller: emailController,
+                  suffixIcon: Icon(Icons.email),
+                  validator: validateEmail,
+                ),
+                CustomTextfield(
+                  hintText: 'Date of Birth',
+                  controller: dateofbirthController,
+                  suffixIcon: Icon(Iconsax.calendar),
+                  validator: (value) => validateRequired(value, 'date of birth'),
+                  onTap: () async {
+                    DateTime? d1 = await showDatePicker(
+                      context: context,
+                      firstDate: DateTime(2001, 1, 1),
+                      lastDate: DateTime(2025, 1, 1),
+                    );
+                    if (d1 != null) {
+                      dateofbirthController.text = DateFormat('dd/MM/yyyy').format(d1);
+                    }
+                  },
+                ),
+                CustomTextfield(
+                  hintText: 'Phone Number',
+                  controller: phonenoController,
+                  suffixIcon: Icon(Icons.phone),
+                  keyboardType: TextInputType.phone, // Numeric keyboard
+                  validator: validatePhoneNumber,
+                  onTap: () {
+                    // Optional: Keep this for additional tap behavior if needed
+                  },
+                ),
+                Center(
                   child: Container(
                     width: double.infinity,
-                    // padding: EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(border: Border.all(
-                      color: Colors.grey,
-                      width: 1,
-
+                    height: 56,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.brown.shade200,
+                        width: 1.6,
+                      ),
+                      borderRadius: BorderRadius.circular(32),
                     ),
-
-                        borderRadius: BorderRadius.circular(12)),
-
                     child: DropdownButton<String>(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       borderRadius: BorderRadius.circular(10),
-
                       iconSize: 24,
-                      // menuMaxHeight: double.infinity,
-                      // menuWidth: double.infinity,
-                      onChanged:(String? newValue){
+                      onChanged: (String? newValue) {
                         dropdownValue = newValue!;
-
-                        if(mounted)setState(() {});
+                        if (mounted) setState(() {});
                       },
-                      elevation: 16,
                       isExpanded: true,
                       underline: SizedBox.shrink(),
                       value: dropdownValue,
                       items: items.map<DropdownMenuItem<String>>(
-                          (String value){
-                            return DropdownMenuItem<String>(
-                                child: Text(value),
+                            (String value) {
+                          return DropdownMenuItem<String>(
+                            child: Text(value),
                             value: value,
-                            );
-                          },
+                          );
+                        },
                       ).toList(),
                     ),
                   ),
-              ),
-
-              // Appbutton(buttonText: 'Continue',onlyBorderButton:true,pressAction: (){
-              //   print("Click Detected");
-              // },),
-
-            ElevatedButton(onPressed: ()async{
-
-              SharedPreferences sp = await SharedPreferences.getInstance();
-
-              sp.setString("firstname", firstnameController.text);
-              sp.setString("lastname", lastnameController.text);
-              sp.setString("email", emailController.text);
-              sp.setString("dateofbirth", dateofbirthController.text);
-              sp.setString("mobileno", phonenoController.text);
-              sp.setString("gender", dropdownValue);
-
-            Navigator.pop(context);
-
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>getData()));
-
-            },style: ElevatedButton.styleFrom(
-
-              backgroundColor: Color(0xFFF9FF40),
-              minimumSize: Size(200, 50),
-
+                ),
+                ElevatedButton(
+                  onPressed: saveData, // Call saveData directly
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.brown.shade100,
+                    minimumSize: Size(200, 50),
+                  ),
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(
+                      color: Colors.brown.shade700,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              ],
             ),
-
-              child:Text('Continue')
-            ,)
-
-            ]
           ),
         ),
       ),
-
-
-
-
-
     );
-
-
   }
 }
-
-
-

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
 import 'package:iconsax/iconsax.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task1/ProductModel.dart';
@@ -8,6 +9,7 @@ import 'package:task1/models/ProductModel.dart';
 import 'package:task1/screens/Check_out.dart';
 import 'package:task1/screens/Favourite.dart';
 
+import '../dataBase/DataBaseHelperClass.dart';
 import '../main.dart';
 
 class AddToCart extends StatefulWidget {
@@ -20,9 +22,10 @@ class AddToCart extends StatefulWidget {
   State<AddToCart> createState() => _AddToCartState();
 }
 
-class _AddToCartState extends State<AddToCart> {
 
-bool isVisible = true;
+class _AddToCartState extends State<AddToCart> {
+  final DataBaseHelper dbHelper = DataBaseHelper.instance;
+  bool isVisible = true;
   // int number = 1;
   // var qty;
 
@@ -34,68 +37,96 @@ bool isVisible = true;
 
   @override
   void initState() {
-    print(cartItems.length.toString()+'xyz');
+
     super.initState();
     print("CART_SCREEN_DETECT");
-    SetIntosp(cartItems);
-
-    getIntosp();
+    _loadCartItems();
 
   }
-  void removeItem(int index) {
+  // void removeItem(int index) {
+  //
+  //   cartItems.removeAt(index);
+  //   _calculateTotal();
+  //   _calculateTotal();
+  //   // isVisible = !isVisible;
+  //   // SetIntosp(cartItems);
+  //   setState(() {
+  //   });
+  //
+  // }
 
-      cartItems.removeAt(index);
-      calculateTotal();
-      // isVisible = !isVisible;
-      SetIntosp(cartItems);
-      setState(() {
-      });
+  Future<void> _loadCartItems() async {
+    try {
+      int userId = 1;
+      cartItems = await dbHelper.getCartItems(userId);
 
-  }
+      for(int i=0;i<cartItems.length;i++)
+        {
+          print('---11---${cartItems[i]}');
+        }
 
+      print('----cartScreen-${cartItems.length}');
 
-
-  Future<void> getIntosp() async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    List<String>? cartItemsJson = sp.getStringList('cartItems');
-
-    print('[DEBUG] Retrieved cartItems JSON: $cartItemsJson');
-
-    if (cartItemsJson != null) {
-      cartItems.clear();
-      cartItems = cartItemsJson.map((item) {
-        Map<String, dynamic> itemMap = jsonDecode(item);
-        return ProductItem.fromMap(itemMap);
-      }).toList();
-      print('Retrieved cartItems: ${cartItems.length}');
+      _calculateTotal();
       setState(() {});
-    } else {
-      print('No cartItems found in SharedPreferences');
+    } catch (e) {
+      print("Error loading cart items: $e");
     }
-    calculateTotal();
-  }
-  Future<void> SetIntosp(List<ProductItem>cartItems) async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    List<String> cartItemsJson = cartItems.map((item) => jsonEncode(item.toMap())).toList();
-    sp.setStringList('cartItems', cartItemsJson);
-    print('Saved cartItems: ${cartItems.length}');
   }
 
-  void calculateTotal() {
-    subtotal = 0;
-    cartItems.forEach((element) {
-      subtotal += num.parse(element.price.toString()) * element.qty;
-    });
+  Future<void> _removeItem(int index) async {
+    try {
+      await dbHelper.removeFromCart(cartItems[index].id);
+      await _loadCartItems(); // Refresh the list
+    } catch (e) {
+      print("Error removing item: $e");
+    }
+  }
+
+  Future<void> _updateQuantity(int index, int newQty) async {
+    if (newQty < 1) {
+      await _removeItem(index);
+      return;
+    }
+
+    try {
+      cartItems[index].qty = newQty;
+      await dbHelper.updateCartItem(cartItems[index]);
+      _calculateTotal();
+      setState(() {});
+    } catch (e) {
+      print("Error updating quantity: $e");
+    }
+  }
+
+  void _calculateTotal() {
+    subtotal = cartItems.fold(0, (sum, item) => sum + ((item.price) * item.qty));
     total = subtotal + delivary_charge + tax_charge;
-    setState(() {
-
-    });
   }
+
+
+
+  // void calculateTotal() {
+  //   subtotal = 0;
+  //   cartItems.forEach((element) {
+  //     subtotal += num.parse(element.price.toString()) * element.qty;
+  //   });
+  //   total = subtotal + delivary_charge + tax_charge;
+  //   setState(() {
+
+  //   });
+  // }
 
 
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // leading: IconButton(
+        //     icon: Icon(Icons.arrow_back),
+        //     onPressed: () {
+        //       Navigator.pop(context); // This takes you back to the previous screen
+        //     },
+        // ),
         centerTitle: true,
         title: Text('Cart'),
       ),
@@ -126,8 +157,8 @@ bool isVisible = true;
                       children: [
                         Padding(
                           padding: EdgeInsets.all(10),
-                          child: Image.network(
-                            cartItems[index].img,
+                          child: Image.asset(
+                            cartItems[index].img.first,
                             width: 100,
                             fit: BoxFit.fill,
                             height: 120,
@@ -160,70 +191,39 @@ bool isVisible = true;
                         // SizedBox(
                         //   width: 70,
                         // ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
+                        Column(
 
-                            children: [
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                spacing: 35,
-                                children: [
-                                  InkWell(
-                                    onTap:(){
-                                      removeItem(index);
-                                    },
-                                    child: IconButton(onPressed: (){
-                                      setState(() {
-                                        removeItem(index);
-                                      });
-                                    },icon: Icon(Iconsax.trush_square),color: Colors.red,iconSize: 28,),
-                                  ),
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              spacing: 32,
+                              children: [
+                                InkWell(
+                                  onTap:(){
+                                    _removeItem(index);
+                                  },
+                                  child: IconButton(onPressed: ()  =>  _removeItem(index),
+                                    icon: Icon(Iconsax.trush_square),color: Colors.red,iconSize: 28, ),
+                                ),
 
-                                  Row(mainAxisAlignment: MainAxisAlignment.end,
-                                    spacing: 5,
-                                    children: [
+                                Row(mainAxisAlignment: MainAxisAlignment.end,
+                                  spacing: 2,
+                                  children: [
 
-                                      GestureDetector(
-                                        onTap: () {
-
-                                            if (cartItems[index].qty > 1) {
-                                              cartItems[index].qty--;
-                                              subtotal -= num.parse(cartItems[index].price.toString());
-                                              total = subtotal + delivary_charge + tax_charge;
-
-                                            }
-                                            else{
-                                              removeItem(index);
-
-                                            }
-                                            calculateTotal();
-                                            SetIntosp(cartItems);
-                                            setState(() {});
-
-                                        },
-                                        child: Icon(Iconsax.minus_cirlce),
-
-                                      ),
-                                      Text(cartItems[index].qty.toString()),
-                                      GestureDetector(
-                                        onTap: () {
-
-                                            cartItems[index].qty++;
-                                            subtotal += num.parse(cartItems[index].price.toString());
-                                            total = subtotal + delivary_charge + tax_charge;
-setState(() {
-
-});
-                                        },
-                                        child: Icon(Iconsax.add_circle),
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                    IconButton(
+                                      onPressed: () => _updateQuantity(index, cartItems[index].qty - 1),
+                                      icon: const Icon(Iconsax.minus_cirlce),
+                                    ),
+                                    Text(cartItems[index].qty.toString()),
+                                    IconButton(
+                                      onPressed: () => _updateQuantity(index, cartItems[index].qty + 1),
+                                      icon: const Icon(Iconsax.add_circle),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
                         )
                       ],
                     ),
@@ -298,18 +298,18 @@ setState(() {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 200),
+                    padding: const EdgeInsets.symmetric(vertical: 150),
                     child: ElevatedButton(
                         onPressed: cartItems.isNotEmpty?() {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => new CheckOut(subtotal: subtotal, total: total),
+                              builder: (context) => new CheckOut(),
                             ),
                           );
                         }:null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.brown.shade200,
+                          backgroundColor: Colors.brown.shade100,
                           minimumSize: Size(250, 50),
                         ),
                         child: Text(
