@@ -47,9 +47,9 @@ class _HomeState extends State<Home> {
   }
 
   List imageList = [
-    {"id": 1, "image_path": 'assets/images/sofa1.jpeg'},
-    {"id": 2, "image_path": 'assets/images/sofa2.jpeg'},
-    {"id": 3, "image_path": 'assets/images/sofa1.jpeg'},
+    {"id": 1, "image_path": 'assets/images/hh1.jpg'},
+    {"id": 2, "image_path": 'assets/images/home 2.jpg'},
+    {"id": 3, "image_path": 'assets/images/home 3.jpg'},
   ];
   List<Category>? categoryList = [
     Category(
@@ -434,7 +434,7 @@ class _HomeState extends State<Home> {
                       Stack(
                         children: [
                           Image.asset(
-                            'assets/images/sofa1.jpeg',
+                            'assets/Product image/Modern Velvet Armchair -1.jpg',
                             fit: BoxFit.fill,
                             width: double.infinity,
                             height: 250,
@@ -443,12 +443,12 @@ class _HomeState extends State<Home> {
                             // top: 5,
                             bottom: 10,
                             right: 0,
-                            left: 20,
+                            left: 120,
                             child: Text(
                               'Discover New Decorify collection',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.brown.shade800,
                               ),
                             ),
                           ),
@@ -466,7 +466,7 @@ class _HomeState extends State<Home> {
                   Stack(
                     children: [
                       Image.asset(
-                        'assets/images/sofa1.jpeg',
+                        'assets/Product image/Elegant Ceiling Fan -1.jpg',
                         width: MediaQuery.sizeOf(context).width / 2 - 24,
                         height: 300,
                         fit: BoxFit.fill,
@@ -475,12 +475,12 @@ class _HomeState extends State<Home> {
                         // top: 5,
                         bottom: 10,
                         right: 0,
-                        left: 20,
+                        left: 28,
                         child: Text(
                           'Furniture Shop',
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.brown.shade800,
                           ),
                         ),
                       )
@@ -492,21 +492,21 @@ class _HomeState extends State<Home> {
                       Stack(
                         children: [
                           Image.asset(
-                            'assets/images/sofa1.jpeg',
+                            'assets/Product image/Stylish Ottoman -1.jpg',
                             width: MediaQuery.sizeOf(context).width / 2 - 24,
                             height: 300 / 2 - 8,
                             fit: BoxFit.fitHeight,
                           ),
                           Positioned(
                             // top: 5,
-                            bottom: 10,
+                            bottom: 4,
                             right: 0,
-                            left: 20,
+                            left: 30,
                             child: Text(
                               'Explore Decore',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.brown.shade800,
                               ),
                             ),
                           )
@@ -518,21 +518,21 @@ class _HomeState extends State<Home> {
                       Stack(
                         children: [
                           Image.asset(
-                            'assets/images/sofa1.jpeg',
+                            'assets/Product image/Luxury Dinnerware Set -1.jpg',
                             width: MediaQuery.sizeOf(context).width / 2 - 24,
                             height: 300 / 2 - 8,
                             fit: BoxFit.fitHeight,
                           ),
                           Positioned(
                             // top: 5,
-                            bottom: 10,
+                            bottom: 2,
                             right: 0,
                             left: 20,
                             child: Text(
                               'Servewares Shop',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.brown.shade800,
                               ),
                             ),
                           )

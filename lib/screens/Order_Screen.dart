@@ -74,7 +74,7 @@ class _OrderScreenState extends State<OrderScreen> {
               physics: NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) =>
                   Container(
-                height: 180,
+                height: 200,
                 width: double.infinity,
                 padding: EdgeInsets.all(20),
                 child: Container(
@@ -117,7 +117,16 @@ class _OrderScreenState extends State<OrderScreen> {
                                 ),
                               ),
                               Text(
-                                'Price : \$${orderItems[index].price*orderItems[index].qty}',
+                                'Price : \$${orderItems[index].price}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                  fontSize: 15,
+                                ),
+                              ),
+
+                              Text(
+                                'Quantity : ${orderItems[index].qty}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
@@ -125,10 +134,10 @@ class _OrderScreenState extends State<OrderScreen> {
                                 ),
                               ),
                               Text(
-                                'Quantity : ${orderItems[index].qty}',
+                                'Total Amount : \$${orderItems[index].price*orderItems[index].qty}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                                  color: Colors.brown,
                                   fontSize: 15,
                                 ),
                               ),

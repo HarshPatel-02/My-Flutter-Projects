@@ -60,6 +60,11 @@ class _AddToCartState extends State<AddToCart> {
       int userId = 1;
       cartItems = await dbHelper.getCartItems(userId);
 
+      for(int i=0;i<cartItems.length;i++)
+        {
+          print('---11---${cartItems[i]}');
+        }
+
       print('----cartScreen-${cartItems.length}');
 
       _calculateTotal();

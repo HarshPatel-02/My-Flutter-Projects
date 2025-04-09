@@ -5,6 +5,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:task1/main.dart';
 import 'package:task1/models/UserModel.dart';
 import 'package:task1/screens/Bottom_navigationBar.dart';
 
@@ -22,6 +23,8 @@ class DataBaseHelper {
   static const String TABLE_CART = 'CART';
 
   static const String UC_ID = 'uc_id';
+  // static const String P_ID = 'productId';
+
   static const String C_ID = 'id';
   static const String C_TITLE = 'title';
   static const String C_DESCRIPTION = 'description';
@@ -92,6 +95,7 @@ class DataBaseHelper {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS $TABLE_CART (
         $UC_ID INTEGER, 
+        
         $C_ID INTEGER PRIMARY KEY,
         $C_TITLE TEXT,
         $C_DESCRIPTION TEXT,
@@ -136,7 +140,7 @@ class DataBaseHelper {
     CREATE TABLE IF NOT EXISTS $TABLE_ORDER (
       O_ID INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER,
-      product_id INTEGER,
+      id INTEGER,
       title TEXT,
       description TEXT,
       price NUM,
@@ -285,7 +289,8 @@ class DataBaseHelper {
       return await db!.insert(
         TABLE_CART,
         {
-          UC_ID: userId,  // 🔹 Now storing user ID
+          UC_ID: userId,
+          C_ID:product.id,  //product id mdse
           C_TITLE: product.title,
           C_DESCRIPTION: product.description,
           C_PRICE: product.price,
@@ -304,7 +309,7 @@ class DataBaseHelper {
   }
 
   Future<List<ProductItem>> getCartItems(int userId) async {
-    print("");
+    print("----getcartItem");
     try {
       final db = await this.db;
 
@@ -316,8 +321,13 @@ class DataBaseHelper {
         where: '$UC_ID  = ?',  // 🔹 Fetch only this user's cart items
         whereArgs: [userId],
 
+
       );
+      print("----CartITEM STORE${cartItems.map((e) => e.id,)}");
+      print("----ProductITEM STORE${List.generate(maps.length, (i) => ProductItem.fromMap(maps[i]))}");
+
       return List.generate(maps.length, (i) => ProductItem.fromMap(maps[i]));
+
     } catch (e) {
       print("Error getting cart items: $e");
       return [];
@@ -331,6 +341,8 @@ class DataBaseHelper {
       return await db!.update(
         TABLE_CART,
         {
+
+          C_ID:product.id,    // product id mdse
           C_TITLE: product.title,
           C_DESCRIPTION: product.description,
           C_PRICE: product.price,
@@ -400,7 +412,7 @@ class DataBaseHelper {
           TABLE_ORDER,
           {
             'user_id': userId,
-            'product_id': item.id,
+            'id': item.id,
             'title': item.title,
             'description': item.description,
             'price': item.price, // Convert to numeric

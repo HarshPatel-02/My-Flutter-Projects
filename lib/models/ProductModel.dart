@@ -17,6 +17,7 @@ class ProductItem {
   String rating;
   String description;
   int qty;
+  // int? productId;
 
    dynamic orderDate;
 
@@ -30,7 +31,8 @@ class ProductItem {
     required this.rating,
     required this.description,
     this.qty=1,
-    this.orderDate
+    this.orderDate,
+    // this.productId,
   });
 
   Map<String, dynamic> toMap() {
@@ -45,12 +47,14 @@ class ProductItem {
       'rating': this.rating,
       'description': this.description,
       'qty': this.qty,
+      // 'productId':this.productId,
     };
   }
 
   factory ProductItem.fromMap(Map<String, dynamic> map) {
     return ProductItem(
       id: (map['id'] as int),
+      // productId:(map['productId'] as int),
       userId: map['userId'],
       // img: map['img'],
       img: [map['img']as String],
@@ -65,7 +69,7 @@ class ProductItem {
   }
   @override
   String toString() {
-    return '(Title :$title,Price: $price,Img: ${img.first})';
+    return '(Title :$title,Price: $price,Img: ${img.first},product:$id)';
   }
 
 

@@ -44,6 +44,7 @@ class _ProductDetailsState extends State<ProductDetails> {
 
     super.initState();
     loadFavorites();
+    _loadCartItems();
   }
 
   void loadFavorites() async {
@@ -52,12 +53,47 @@ class _ProductDetailsState extends State<ProductDetails> {
     setState(() {}); // Update UI
   }
 
+  Future<void> _loadCartItems() async {
+    try {
+      int userId = 1;
+      cartItems = await dbHelper.getCartItems(userId);
+
+      setState(() {});
+    } catch (e) {
+      print("Error loading cart items: $e");
+    }
+  }
+
+
   Future<void> _removeItem(int index) async {
     try {
       await dbHelper.removeFromFav(favoriteProducts[index].id);
        // Refresh the list
     } catch (e) {
       print("Error removing item: $e");
+    }
+  }Future<void> _removeCartItem(int index) async {
+    try {
+      await dbHelper.removeFromFav(favoriteProducts[index].id);
+       // Refresh the list
+    } catch (e) {
+      print("Error removing item: $e");
+    }
+  }
+
+  Future<void> _updateQuantity(int index, int newQty) async {
+    if (newQty < 1) {
+      await _removeCartItem(index);
+      return;
+    }
+
+    try {
+      cartItems[index].qty = newQty;
+      await dbHelper.updateCartItem(cartItems[index]);
+
+      setState(() {});
+    } catch (e) {
+      print("Error updating quantity: $e");
     }
   }
 
@@ -106,7 +142,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 },
                 child: Container(
                   color: Colors.grey.shade200,
-                  // margin: EdgeInsets.symmetric(horizontal: 8),
+                  margin: EdgeInsets.symmetric(horizontal: 8),
                   height: 350,
                   width: 500,
                   child: CarouselSlider(
@@ -137,7 +173,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       options: CarouselOptions(
                         scrollPhysics: const BouncingScrollPhysics(),
                         autoPlay: true,
-                        aspectRatio: 2,
+                        aspectRatio: 2/3,
                         viewportFraction: 1,
 
                         onPageChanged: (index, reason) {
@@ -151,31 +187,31 @@ class _ProductDetailsState extends State<ProductDetails> {
 
               ),
               SizedBox(height: 8),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: product.img
-              //       .asMap()
-              //       .entries
-              //       .map((entry) {
-              //     // print(entry);
-              //     // print(entry.key);
-              //     return GestureDetector(
-              //       onTap: () => carouselController.animateToPage(entry.key),
-              //       child: Container(
-              //         width: currentIndex == entry.key ? 27 : 10,
-              //         height: 8,
-              //         margin: const EdgeInsets.symmetric(
-              //           horizontal: 3.0,
-              //         ),
-              //         decoration: BoxDecoration(
-              //             borderRadius: BorderRadius.circular(20),
-              //             color: currentIndex == entry.key
-              //                 ? Colors.brown.shade500
-              //                 : Colors.brown.shade200),
-              //       ),
-              //     );
-              //   }).toList(),
-              // ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: product.img
+                    .asMap()
+                    .entries
+                    .map<Widget>((entry) {
+                  // print(entry);
+                  // print(entry.key);
+                  return GestureDetector(
+                    onTap: () => carouselController.animateToPage(entry.key),
+                    child: Container(
+                      width: currentIndex == entry.key ? 27 : 10,
+                      height: 8,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 3.0,
+                      ),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: currentIndex == entry.key
+                              ? Colors.brown.shade500
+                              : Colors.brown.shade200),
+                    ),
+                  );
+                }).toList(),
+              ),
               SizedBox(
                 height: 30,
               ),
@@ -280,7 +316,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 ],
               ),
               SizedBox(
-                height: 90,
+                height: 60,
               ),
               Center(
                 child: ElevatedButton(
@@ -315,23 +351,51 @@ class _ProductDetailsState extends State<ProductDetails> {
                 child: ElevatedButton(
                     onPressed: () async{
                       int userId = 1;
+                      print("CheckProductID::::${product.id}");
+                      print("CheckProductID:::cartItems:${cartItems.map((e) => e.id,).toList()}");
+                      // if(
+                      // cartItems.map((e) => e.id,).toList().contains(product.id)){
+                      //   return;
+                      // }
+
                       if (!cartItems.any((item) => item.id == product.id)) {
                         // cartItems.add(product);
                         await dbHelper.addToCart(product,userId);
-
+                        print(cartItems.length.toString()+'abc');
+                        Fluttertoast.showToast(
+                          msg: "Added to Cart",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.black,
+                          textColor: Colors.white,
+                        );
                       }
-                      print(cartItems.length.toString()+'abc');
-                      Fluttertoast.showToast(
-                        msg: "Added to Cart",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        backgroundColor: Colors.black,
-                        textColor: Colors.white,
-                      );
+                      else{
+                        int alredyItem = cartItems.indexWhere((item) => item.id == product.id);
+                        int currentQty = cartItems[alredyItem].qty;
+                        await _updateQuantity(alredyItem, currentQty + 1);
+                        print(cartItems.length.toString()+'abc');
+                        Fluttertoast.showToast(
+                          msg: "Quantity increase in cart",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.black,
+                          textColor: Colors.white,
+                        );
+                      }
+                      // print('-----PRODUCTID---${product}');
+                      // await dbHelper.addToCart(product, userId);
+                      print('-----${cartItems.length}');
+                      for(int i = 0; i<cartItems.length; i++){
+                        print('----CART ITEM ----${cartItems[i]}');
+                      }
+
                       print(cartItems.length.toString() + 'adbbd');
                       setState(() {});
+
                       print(cartItems.length.toString() + 'adbbd2');
                     },
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.brown.shade100,
                       minimumSize: Size(250, 50),
@@ -343,10 +407,14 @@ class _ProductDetailsState extends State<ProductDetails> {
 
                     )),
 
-              )
+              ),
+              SizedBox(
+                height: 30,
+              ),
             ],
           ),
         ),
+
       ),
     );
   }
